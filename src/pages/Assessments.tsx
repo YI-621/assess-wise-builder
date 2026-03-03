@@ -2,8 +2,9 @@ import { sampleAssessments } from "@/lib/mockData";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Upload } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning/10 text-warning border-warning/20",
@@ -30,6 +31,9 @@ const Assessments = () => {
           <h2 className="text-xl font-bold text-foreground">Assessments</h2>
           <p className="text-sm text-muted-foreground mt-1">All submitted assessments for moderation</p>
         </div>
+        <Button className="gap-2">
+          <Upload className="h-4 w-4" /> Upload Assessment
+        </Button>
       </div>
 
       <div className="relative max-w-sm">

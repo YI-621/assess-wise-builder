@@ -13,6 +13,8 @@ import HistoryPage from "./pages/HistoryPage";
 import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            <Route path="/welcome" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<Index />} />
@@ -32,6 +35,7 @@ const App = () => (
               <Route path="/moderate" element={<Moderate />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/analytics" element={<Analytics />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
