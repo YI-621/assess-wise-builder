@@ -4,17 +4,21 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const navItems = [
-  { to: "/", icon: Home, label: "Dashboard" },
-  { to: "/assessments", icon: FileText, label: "Assessments" },
-  { to: "/moderate", icon: ClipboardCheck, label: "Moderate" },
-  { to: "/history", icon: History, label: "History" },
-  { to: "/analytics", icon: BarChart3, label: "Analytics" },
+const allNavItems = [
+  { to: "/", icon: Home, label: "Dashboard", roles: ["admin", "moderator", "lecturer"] },
+  { to: "/assessments", icon: FileText, label: "Assessments", roles: ["admin", "moderator", "lecturer"] },
+  { to: "/moderate", icon: ClipboardCheck, label: "Moderate", roles: ["admin", "moderator"] },
+  { to: "/history", icon: History, label: "History", roles: ["admin", "moderator"] },
+  { to: "/analytics", icon: BarChart3, label: "Analytics", roles: ["admin", "lecturer"] },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
-  const { profile, isAdmin, signOut, user } = useAuth();
+  const { profile, isAdmin, roles, signOut, user } = useAuth();
+
+  const navItems = allNavItems.filter((item) =>
+    roles.some((r) => item.roles.includes(r)) || roles.length === 0
+  );
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
