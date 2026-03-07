@@ -7,6 +7,42 @@ interface QuestionCardProps {
   index: number;
   comment?: string;
   onCommentChange?: (value: string) => void;
+  readOnly?: boolean;
+}
+
+const complexityLevels = [
+  { label: "Very Easy", min: 0, max: 20, color: "bg-emerald-400" },
+  { label: "Easy", min: 20, max: 40, color: "bg-green-500" },
+  { label: "Medium", min: 40, max: 60, color: "bg-yellow-500" },
+  { label: "Hard", min: 60, max: 80, color: "bg-orange-500" },
+  { label: "Very Hard", min: 80, max: 100, color: "bg-red-500" },
+];
+
+function ComplexityBars({ value }: { value: number }) {
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-[10px]">
+        <span className="text-muted-foreground">Complexity</span>
+        <span className="font-mono font-medium text-card-foreground">{value}%</span>
+      </div>
+      <div className="flex gap-1">
+        {complexityLevels.map((level) => {
+          const isActive = value >= level.min;
+          return (
+            <div key={level.label} className="flex-1 flex flex-col items-center gap-0.5">
+              <div
+                className={cn(
+                  "h-2 w-full rounded-sm transition-all",
+                  isActive ? level.color : "bg-muted"
+                )}
+              />
+              <span className="text-[8px] text-muted-foreground leading-none">{level.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 function ScoreBar({ label, value, max = 100, variant }: { label: string; value: number; max?: number; variant: "good" | "warn" | "bad" }) {
@@ -24,8 +60,7 @@ function ScoreBar({ label, value, max = 100, variant }: { label: string; value: 
   );
 }
 
-export function QuestionCard({ question, index, comment, onCommentChange }: QuestionCardProps) {
-  const complexityVariant = question.complexity > 70 ? "good" : question.complexity > 40 ? "warn" : "bad";
+export function QuestionCard({ question, index, comment, onCommentChange, readOnly }: QuestionCardProps) {
   const similarityVariant = question.similarityScore > 60 ? "bad" : question.similarityScore > 30 ? "warn" : "good";
 
   return (
@@ -55,7 +90,7 @@ export function QuestionCard({ question, index, comment, onCommentChange }: Ques
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <ScoreBar label="Complexity" value={question.complexity} variant={complexityVariant} />
+        <ComplexityBars value={question.complexity} />
         <ScoreBar label="Similarity" value={question.similarityScore} variant={similarityVariant} />
       </div>
 
@@ -89,12 +124,16 @@ export function QuestionCard({ question, index, comment, onCommentChange }: Ques
             <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">Moderator Comment</span>
           </div>
-          <textarea
-            value={comment}
-            onChange={(e) => onCommentChange(e.target.value)}
-            placeholder="Add a comment for this question..."
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none min-h-[60px]"
-          />
+          {readOnly ? (
+            <p className="text-sm text-muted-foreground italic">{comment || "No comment provided."}</p>
+          ) : (
+            <textarea
+              value={comment}
+              onChange={(e) => onCommentChange(e.target.value)}
+              placeholder="Add a comment for this question..."
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none min-h-[60px]"
+            />
+          )}
         </div>
       )}
     </div>
