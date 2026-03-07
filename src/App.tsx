@@ -10,7 +10,6 @@ import Index from "./pages/Index";
 import Assessments from "./pages/Assessments";
 import Moderate from "./pages/Moderate";
 import HistoryPage from "./pages/HistoryPage";
-import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
@@ -30,11 +29,10 @@ const App = () => (
             <Route path="/welcome" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/" element={<Index />} />
-              <Route path="/assessments" element={<Assessments />} />
+              <Route path="/" element={<RoleRoute allowedRoles={["lecturer", "admin"]}><Index /></RoleRoute>} />
+              <Route path="/assessments" element={<RoleRoute allowedRoles={["lecturer", "admin"]}><Assessments /></RoleRoute>} />
               <Route path="/moderate" element={<RoleRoute allowedRoles={["moderator", "admin"]}><Moderate /></RoleRoute>} />
               <Route path="/history" element={<RoleRoute allowedRoles={["moderator", "admin"]}><HistoryPage /></RoleRoute>} />
-              <Route path="/analytics" element={<RoleRoute allowedRoles={["lecturer", "admin"]}><Analytics /></RoleRoute>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
             </Route>
