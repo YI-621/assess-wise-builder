@@ -243,17 +243,17 @@ async function getComprehensiveAnalysis(
     ? Object.entries(potentialBloom).map(([k, v]) => `'${k}' (${v.join("/")})`).join(", ")
     : "None";
 
-  const AI_API_KEY = Deno.env.get("AI_API_KEY");
-  if (!AI_API_KEY) throw new Error("AI_API_KEY not configured");
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${AI_API_KEY}`,
+      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-3-flash-preview",
       messages: [
         {
           role: "system",
@@ -270,7 +270,13 @@ async function getComprehensiveAnalysis(
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error("AI Gateway error:", errText);
+    console.error("AI Gateway error:", response.status, errText);
+    if (response.status === 429) {
+      return { error: "Rate limited – try again later", final_bloom_level: "Error" };
+    }
+    if (response.status === 402) {
+      return { error: "AI credits exhausted", final_bloom_level: "Error" };
+    }
     return { error: errText, final_bloom_level: "Error" };
   }
 
