@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import type { Assessment, Question } from "@/lib/mockData";
+import type { Assessment, Question, ModerationDetails } from "@/lib/mockData";
 
 // Types matching the database
 export interface DbAssessment {
