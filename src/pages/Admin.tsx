@@ -86,10 +86,22 @@ export default function Admin() {
     }
   };
 
-  const updateRole = async (userId: string, newRole: string) => {
-    await supabase.from("user_roles").delete().eq("user_id", userId);
-    await supabase.from("user_roles").insert({ user_id: userId, role: newRole as any });
-    toast({ title: "Role updated" });
+  const toggleRole = async (userId: string, role: string) => {
+    const user = users.find((u) => u.user_id === userId);
+    if (!user) return;
+    const hasRole = user.roles.includes(role);
+    if (hasRole) {
+      // Don't allow removing the last role
+      if (user.roles.length <= 1) {
+        toast({ title: "Cannot remove last role", description: "A user must have at least one role", variant: "destructive" });
+        return;
+      }
+      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as any);
+      toast({ title: `Removed ${role} role` });
+    } else {
+      await supabase.from("user_roles").insert({ user_id: userId, role: role as any });
+      toast({ title: `Added ${role} role` });
+    }
     fetchUsers();
   };
 
@@ -168,8 +180,7 @@ export default function Admin() {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Department</TableHead>
-                      <TableHead>Current Role</TableHead>
-                      <TableHead>Change Role</TableHead>
+                      <TableHead>Roles</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -178,21 +189,21 @@ export default function Admin() {
                         <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
                         <TableCell>{u.department || "—"}</TableCell>
                         <TableCell>
-                          {u.roles.map((r) => (
-                            <Badge key={r} variant={roleBadgeColor(r) as any} className="mr-1">{r}</Badge>
-                          ))}
-                        </TableCell>
-                        <TableCell>
-                          <Select onValueChange={(val) => updateRole(u.user_id, val)}>
-                            <SelectTrigger className="w-36">
-                              <SelectValue placeholder="Change role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="moderator">Moderator</SelectItem>
-                              <SelectItem value="lecturer">Lecturer</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex gap-2">
+                            {(["admin", "moderator", "lecturer"] as const).map((role) => {
+                              const active = u.roles.includes(role);
+                              return (
+                                <Badge
+                                  key={role}
+                                  variant={active ? roleBadgeColor(role) as any : "outline"}
+                                  className={`cursor-pointer select-none transition-opacity ${!active ? "opacity-40" : ""}`}
+                                  onClick={() => toggleRole(u.user_id, role)}
+                                >
+                                  {role}
+                                </Badge>
+                              );
+                            })}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
