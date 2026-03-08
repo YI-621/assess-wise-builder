@@ -63,6 +63,7 @@ export type Database = {
           id: string
           lecturer_id: string
           moderator_id: string | null
+          module_code: string | null
           overall_score: number | null
           status: string
           title: string
@@ -78,6 +79,7 @@ export type Database = {
           id?: string
           lecturer_id: string
           moderator_id?: string | null
+          module_code?: string | null
           overall_score?: number | null
           status?: string
           title: string
@@ -93,6 +95,7 @@ export type Database = {
           id?: string
           lecturer_id?: string
           moderator_id?: string | null
+          module_code?: string | null
           overall_score?: number | null
           status?: string
           title?: string
@@ -152,6 +155,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      moderator_modules: {
+        Row: {
+          created_at: string
+          id: string
+          module_code: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_code: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_code?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
