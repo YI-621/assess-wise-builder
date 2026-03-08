@@ -153,7 +153,7 @@ export default function Auth() {
     } else {
       toast({ title: "Success!", description: "Two-Factor Authentication verified." });
       await sendAuditLog("SUCCESSFUL_LOGIN", "Authentication System");
-      navigate("/dashboard");
+      navigate("/");
     }
   };
 
