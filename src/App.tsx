@@ -17,6 +17,7 @@ import Landing from "./pages/Landing";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import AssessmentDetail from "./pages/AssessmentDetail";
+import AdminAssessments from "./pages/AdminAssessments";
 
 const queryClient = new QueryClient();
 
