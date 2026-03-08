@@ -270,7 +270,13 @@ async function getComprehensiveAnalysis(
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error("AI Gateway error:", errText);
+    console.error("AI Gateway error:", response.status, errText);
+    if (response.status === 429) {
+      return { error: "Rate limited – try again later", final_bloom_level: "Error" };
+    }
+    if (response.status === 402) {
+      return { error: "AI credits exhausted", final_bloom_level: "Error" };
+    }
     return { error: errText, final_bloom_level: "Error" };
   }
 
