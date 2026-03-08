@@ -208,13 +208,13 @@ function preScanBloom(questionText: string, bloomDict: Record<string, BloomEntry
 // Map bloom level name to the 6-level Bloom names used in DB
 function normalizeBloomLevel(level: string): string {
   const l = level.toLowerCase().trim();
-  if (l.includes("knowledge") || l === "remember" || l === "remembering") return "Remember";
-  if (l.includes("comprehension") || l === "understand" || l === "understanding") return "Understand";
-  if (l.includes("application") || l === "apply" || l === "applying") return "Apply";
-  if (l.includes("analysis") || l === "analyze" || l === "analysing" || l === "analyzing") return "Analyze";
-  if (l.includes("synthesis") || l === "create" || l === "creating") return "Create";
-  if (l.includes("evaluation") || l === "evaluate" || l === "evaluating") return "Evaluate";
-  return "Remember";
+  if (l.includes("knowledge") || l === "remember" || l === "remembering") return "Knowledge";
+  if (l.includes("comprehension") || l === "understand" || l === "understanding") return "Comprehension";
+  if (l.includes("application") || l === "apply" || l === "applying") return "Application";
+  if (l.includes("analysis") || l === "analyze" || l === "analysing" || l === "analyzing") return "Analysis";
+  if (l.includes("synthesis") || l === "create" || l === "creating") return "Synthesis";
+  if (l.includes("evaluation") || l === "evaluate" || l === "evaluating") return "Evaluation";
+  return "Knowledge";
 }
 
 function complexityToNumber(c: string): number {
