@@ -227,7 +227,8 @@ function complexityToNumber(c: string | undefined): number {
   return 50;
 }
 
-function bloomToDifficulty(bloomLevel: string): string {
+function bloomToDifficulty(bloomLevel: string | undefined): string {
+  if (!bloomLevel) return "Easy";
   const l = bloomLevel.toLowerCase();
   if (["knowledge", "comprehension", "remember", "understand"].some((x) => l.includes(x))) return "Easy";
   if (["application", "analysis", "apply", "analyze"].some((x) => l.includes(x))) return "Medium";
