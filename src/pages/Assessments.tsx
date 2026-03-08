@@ -91,7 +91,6 @@ const Assessments = () => {
         title: "Assessment uploaded",
         description: "Your assessment has been submitted for moderation.",
       });
-      }
 
       logActivity.mutate({
         type: "upload",
