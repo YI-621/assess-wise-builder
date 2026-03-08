@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { sampleAssessments } from "@/lib/mockData";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { QuestionCard } from "@/components/moderate/QuestionCard";
 import { AssessmentSummary } from "@/components/moderate/AssessmentSummary";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CheckCircle, Pencil } from "lucide-react";
+import { ArrowLeft, CheckCircle, Pencil, Loader2 } from "lucide-react";
+import { useAssessmentsWithQuestions, useModerationComments, useSaveComment, useUpdateAssessmentStatus, useLogActivity } from "@/hooks/useData";
+import { sampleAssessments } from "@/lib/mockData";
+import { useToast } from "@/hooks/use-toast";
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning/10 text-warning border-warning/20",
@@ -15,11 +17,18 @@ const statusStyles: Record<string, string> = {
 };
 
 const HistoryPage = () => {
-  // Simulate: Approved/Reviewed = done (read-only), Pending = can continue moderating
-  const history = sampleAssessments.filter(
+  const { toast } = useToast();
+  const { data: dbAssessments, isLoading } = useAssessmentsWithQuestions();
+  const updateStatus = useUpdateAssessmentStatus();
+  const logActivity = useLogActivity();
+  const saveComment = useSaveComment();
+
+  const assessments = dbAssessments && dbAssessments.length > 0 ? dbAssessments : sampleAssessments;
+
+  const history = assessments.filter(
     (a) => a.status === "Approved" || a.status === "Rejected" || a.status === "Reviewed"
   );
-  const inProgress = sampleAssessments.filter((a) => a.status === "Pending");
+  const inProgress = assessments.filter((a) => a.status === "Pending");
 
   const allItems = [
     ...inProgress.map((a) => ({ ...a, isDone: false })),
@@ -30,6 +39,36 @@ const HistoryPage = () => {
   const [comments, setComments] = useState<Record<string, string>>({});
 
   const selected = allItems.find((a) => a.id === selectedId);
+  const questionIds = selected?.questions.map((q) => q.id) ?? [];
+  const { data: dbComments } = useModerationComments(questionIds);
+
+  useEffect(() => {
+    if (dbComments) {
+      const map: Record<string, string> = {};
+      dbComments.forEach((c) => { map[c.question_id] = c.comment; });
+      setComments((prev) => ({ ...map, ...prev }));
+    }
+  }, [dbComments]);
+
+  const handleDone = () => {
+    if (selectedId && selected && !selected.isDone) {
+      updateStatus.mutate({ id: selectedId, status: "Reviewed" });
+      logActivity.mutate({ type: "moderation_complete", description: `${selected.title} moderation completed`, assessmentId: selectedId });
+      toast({ title: "Assessment marked as reviewed" });
+      setSelectedId(null);
+    }
+  };
+
+  const handleCommentBlur = (questionId: string) => {
+    const comment = comments[questionId];
+    if (comment !== undefined) {
+      saveComment.mutate({ questionId, comment });
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
 
   if (selected) {
     return (
@@ -46,13 +85,12 @@ const HistoryPage = () => {
               </p>
             </div>
           </div>
-          {selected.isDone && (
+          {selected.isDone ? (
             <Badge variant="outline" className="text-xs border-success/20 text-success bg-success/10">
               <CheckCircle className="h-3 w-3 mr-1" /> Completed
             </Badge>
-          )}
-          {!selected.isDone && (
-            <Button size="sm" className="gap-1.5">
+          ) : (
+            <Button size="sm" className="gap-1.5" onClick={handleDone}>
               <CheckCircle className="h-3.5 w-3.5" /> Done
             </Button>
           )}
@@ -69,6 +107,7 @@ const HistoryPage = () => {
                 onCommentChange={(val) =>
                   !selected.isDone && setComments((prev) => ({ ...prev, [q.id]: val }))
                 }
+                onCommentBlur={() => handleCommentBlur(q.id)}
                 readOnly={selected.isDone}
               />
             ))}
