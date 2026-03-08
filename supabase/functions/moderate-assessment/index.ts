@@ -206,7 +206,8 @@ function preScanBloom(questionText: string, bloomDict: Record<string, BloomEntry
 }
 
 // Map bloom level name to the 6-level Bloom names used in DB
-function normalizeBloomLevel(level: string): string {
+function normalizeBloomLevel(level: string | undefined): string {
+  if (!level) return "Knowledge";
   const l = level.toLowerCase().trim();
   if (l.includes("knowledge") || l === "remember" || l === "remembering") return "Knowledge";
   if (l.includes("comprehension") || l === "understand" || l === "understanding") return "Comprehension";
