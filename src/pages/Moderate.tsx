@@ -141,16 +141,55 @@ const Moderate = () => {
             </p>
           </div>
         </div>
-        {!isReviewed && (
-          <Button size="sm" className="gap-1.5" onClick={handleDone}>
-            <CheckCircle className="h-3.5 w-3.5" /> Done
-          </Button>
-        )}
-        {isReviewed && (
-          <Badge variant="outline" className="text-xs border-success/20 text-success bg-success/10">
-            <CheckCircle className="h-3 w-3 mr-1" /> Completed
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {!isReviewed && assessment.questions.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              disabled={analyzeAssessment.isPending}
+              onClick={() => {
+                analyzeAssessment.mutate(id!, {
+                  onSuccess: (data) => {
+                    toast({
+                      title: "AI Analysis Complete",
+                      description: `Analyzed ${data.questions_analyzed} questions. Overall score: ${data.overall_score}%`,
+                    });
+                    logActivity.mutate({
+                      type: "moderation_complete",
+                      description: `AI analysis completed for ${assessment.title}`,
+                      assessmentId: id!,
+                    });
+                  },
+                  onError: (err: any) => {
+                    toast({
+                      title: "Analysis failed",
+                      description: err.message,
+                      variant: "destructive",
+                    });
+                  },
+                });
+              }}
+            >
+              {analyzeAssessment.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              {analyzeAssessment.isPending ? "Analyzing..." : "Analyze with AI"}
+            </Button>
+          )}
+          {!isReviewed && (
+            <Button size="sm" className="gap-1.5" onClick={handleDone}>
+              <CheckCircle className="h-3.5 w-3.5" /> Done
+            </Button>
+          )}
+          {isReviewed && (
+            <Badge variant="outline" className="text-xs border-success/20 text-success bg-success/10">
+              <CheckCircle className="h-3 w-3 mr-1" /> Completed
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
