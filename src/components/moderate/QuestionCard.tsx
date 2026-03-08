@@ -113,6 +113,38 @@ export function QuestionCard({ question, index, comment, onCommentChange, onComm
         </div>
       )}
 
+      {/* Moderation Details from AI */}
+      {question.moderationDetails && (
+        <div className="mt-3 space-y-2">
+          {question.moderationDetails.grammar_errors && question.moderationDetails.grammar_errors !== "N/A" && question.moderationDetails.grammar_errors !== "None" && (
+            <div className="flex items-start gap-2 rounded-lg bg-warning/5 border border-warning/20 px-3 py-2">
+              <FileWarning className="h-3.5 w-3.5 text-warning shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[10px] font-semibold text-warning mb-0.5">Grammar/Spelling</p>
+                <p className="text-[11px] text-warning">{question.moderationDetails.grammar_errors}</p>
+              </div>
+            </div>
+          )}
+          {question.moderationDetails.suggestion && question.moderationDetails.suggestion !== "N/A" && (
+            <div className="flex items-start gap-2 rounded-lg bg-info/5 border border-info/20 px-3 py-2">
+              <Lightbulb className="h-3.5 w-3.5 text-info shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[10px] font-semibold text-info mb-0.5">Suggested Revision</p>
+                <p className="text-[11px] text-info">{question.moderationDetails.suggestion}</p>
+              </div>
+            </div>
+          )}
+          {question.moderationDetails.relevancy_to_scope && question.moderationDetails.relevancy_to_scope !== "N/A" && (
+            <div className="flex items-start gap-2 rounded-lg bg-muted/50 border border-border px-3 py-2">
+              <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+              <p className="text-[11px] text-muted-foreground">
+                <span className="font-semibold">Module Relevancy:</span> {question.moderationDetails.relevancy_to_scope}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {onCommentChange && (
         <div className="mt-4 border-t border-border pt-3">
           <div className="flex items-center gap-2 mb-2">
