@@ -37,6 +37,7 @@ const App = () => (
               <Route path="/moderate" element={<RoleRoute allowedRoles={["moderator", "admin"]}><Moderate /></RoleRoute>} />
               <Route path="/history" element={<RoleRoute allowedRoles={["moderator", "admin"]}><HistoryPage /></RoleRoute>} />
               <Route path="/assessment-detail" element={<RoleRoute allowedRoles={["lecturer", "admin"]}><AssessmentDetail /></RoleRoute>} />
+              <Route path="/admin-assessments" element={<AdminRoute><AdminAssessments /></AdminRoute>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/supervision" element={<AdminRoute><Supervision /></AdminRoute>} />
               <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />

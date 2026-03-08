@@ -15,6 +15,7 @@ const roleNavItems: Record<string, { to: string; icon: any; label: string }[]> =
   ],
   admin: [
     { to: "/", icon: Home, label: "Dashboard" },
+    { to: "/admin-assessments", icon: FileText, label: "Assessments" },
     { to: "/supervision", icon: Users, label: "Supervision" },
     { to: "/admin", icon: Shield, label: "Admin" },
   ],
