@@ -99,7 +99,39 @@ const AssessmentDetail = () => {
             </p>
           </div>
         </div>
-      </div>
+        </div>
+        {assessment.questions.length > 0 && assessment.status === "Pending" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5"
+            disabled={analyzeAssessment.isPending}
+            onClick={() => {
+              analyzeAssessment.mutate(id!, {
+                onSuccess: (data) => {
+                  toast({
+                    title: "AI Analysis Complete",
+                    description: `Analyzed ${data.questions_analyzed} questions. Overall score: ${data.overall_score}%`,
+                  });
+                },
+                onError: (err: any) => {
+                  toast({
+                    title: "Analysis failed",
+                    description: err.message,
+                    variant: "destructive",
+                  });
+                },
+              });
+            }}
+          >
+            {analyzeAssessment.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            {analyzeAssessment.isPending ? "Analyzing..." : "Analyze with AI"}
+          </Button>
+        )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
