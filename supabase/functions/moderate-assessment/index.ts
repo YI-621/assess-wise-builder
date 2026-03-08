@@ -321,7 +321,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { assessment_id } = await req.json();
+    const { assessment_id, extracted_text } = await req.json();
     if (!assessment_id) {
       return new Response(JSON.stringify({ error: "assessment_id required" }), {
         status: 400,
@@ -346,18 +346,28 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Download file from storage
-    const { data: fileData, error: dlErr } = await supabase.storage
-      .from("assessments")
-      .download(assessment.file_url);
-    if (dlErr || !fileData) {
-      return new Response(JSON.stringify({ error: "Could not download file: " + (dlErr?.message ?? "unknown") }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Use pre-extracted text if provided, otherwise try downloading the .extracted.txt file, then fall back to raw download
+    let fileText = "";
+    if (extracted_text && typeof extracted_text === "string" && extracted_text.trim()) {
+      fileText = extracted_text;
+    } else {
+      // Try the pre-extracted text file first
+      const txtPath = assessment.file_url + ".extracted.txt";
+      const { data: txtData, error: txtErr } = await supabase.storage.from("assessments").download(txtPath);
+      if (!txtErr && txtData) {
+        fileText = await txtData.text();
+      } else {
+        // Fall back to raw file (works for .txt uploads)
+        const { data: fileData, error: dlErr } = await supabase.storage.from("assessments").download(assessment.file_url);
+        if (dlErr || !fileData) {
+          return new Response(JSON.stringify({ error: "Could not download file: " + (dlErr?.message ?? "unknown") }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        fileText = await fileData.text();
+      }
     }
-
-    const fileText = await fileData.text();
 
     // Parse exam questions
     const parsedQuestions = parseExam(fileText);
