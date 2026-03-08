@@ -217,7 +217,8 @@ function normalizeBloomLevel(level: string): string {
   return "Knowledge";
 }
 
-function complexityToNumber(c: string): number {
+function complexityToNumber(c: string | undefined): number {
+  if (!c) return 50;
   const l = c.toLowerCase().trim();
   if (l === "high") return 80;
   if (l === "medium") return 50;
@@ -396,8 +397,41 @@ Deno.serve(async (req) => {
       // Pre-scan bloom keywords
       const potentialBloom = preScanBloom(text, bloomDict);
 
-      // AI analysis
-      const analysis = await getComprehensiveAnalysis(text, potentialBloom, moduleName);
+      // Skip questions where AI analysis failed
+      if (analysis.error) {
+        console.warn(`Skipping question ${qid} due to AI error: ${analysis.error}`);
+        // Use fallback values
+        const bloomLevel = "Knowledge";
+        const complexity = 50;
+        const difficulty = "Easy";
+        const validatedKeywords = Object.keys(potentialBloom);
+
+        totalComplexity += complexity;
+
+        questionsToInsert.push({
+          assessment_id,
+          text,
+          marks: 0,
+          bloom_level: bloomLevel,
+          difficulty,
+          complexity,
+          similarity_score: 0,
+          similar_to: null,
+          keywords: validatedKeywords,
+          question_order: i + 1,
+          moderation_details: {
+            question_id: qid,
+            grammar_errors: "N/A",
+            grammar_structure: "N/A",
+            relevancy_to_scope: "N/A",
+            suggestion: "N/A",
+            validated_bloom_keywords: "N/A",
+            raw_complexity: "N/A",
+            ai_error: analysis.error,
+          },
+        });
+        continue;
+      }
 
       const bloomLevel = normalizeBloomLevel(analysis.final_bloom_level);
       const complexity = complexityToNumber(analysis.complexity);
