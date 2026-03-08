@@ -1,5 +1,5 @@
-import { type Question, bloomColors, difficultyColors } from "@/lib/mockData";
-import { AlertTriangle, CheckCircle2, Copy, MessageSquare } from "lucide-react";
+import { type Question, bloomColors, difficultyColors, type ModerationDetails } from "@/lib/mockData";
+import { AlertTriangle, CheckCircle2, Copy, MessageSquare, FileWarning, Lightbulb, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuestionCardProps {
