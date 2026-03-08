@@ -29,9 +29,9 @@ This project uses two Supabase Edge Functions:
 Parses uploaded exam files, analyzes questions with AI, and stores moderation results.
 
 **Required secrets** (set in Supabase Dashboard → Settings → Edge Functions → Secrets):
-- `SUPABASE_URL` – Your project URL
-- `SUPABASE_SERVICE_ROLE_KEY` – Your service role key (from Settings → API)
-- `LOVABLE_API_KEY` – An API key for AI analysis (the function calls an OpenAI-compatible endpoint; you'll need to update the endpoint URL in the function code to your own AI provider)
+- `SUPABASE_URL` – Automatically available in Edge Functions (no need to set manually)
+- `SUPABASE_SERVICE_ROLE_KEY` – Automatically available in Edge Functions (no need to set manually)
+- `AI_API_KEY` – An API key for AI analysis (OpenAI or compatible provider)
 
 Deploy:
 ```bash
