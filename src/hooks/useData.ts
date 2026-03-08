@@ -87,6 +87,7 @@ export function toFrontendAssessment(a: DbAssessment, questions: DbQuestion[], l
         similarityScore: q.similarity_score,
         similarTo: q.similar_to ?? undefined,
         keywords: q.keywords ?? [],
+        moderationDetails: (q.moderation_details as ModerationDetails) ?? undefined,
       })),
   };
 }
