@@ -87,7 +87,7 @@ export default function Auth() {
     if (levelData?.currentLevel === 'aal2') {
       // Already fully authenticated
       await sendAuditLog("SUCCESSFUL_LOGIN", "Authentication System");
-      navigate("/dashboard");
+      navigate("/");
       return;
     }
 
@@ -153,7 +153,7 @@ export default function Auth() {
     } else {
       toast({ title: "Success!", description: "Two-Factor Authentication verified." });
       await sendAuditLog("SUCCESSFUL_LOGIN", "Authentication System");
-      navigate("/dashboard");
+      navigate("/");
     }
   };
 
