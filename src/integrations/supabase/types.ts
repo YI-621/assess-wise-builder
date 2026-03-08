@@ -100,6 +100,24 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_questions: {
+        Row: {
+          id: number
+          question_id: string
+          question_text: string
+        }
+        Insert: {
+          id?: never
+          question_id: string
+          question_text: string
+        }
+        Update: {
+          id?: never
+          question_id?: string
+          question_text?: string
+        }
+        Relationships: []
+      }
       moderation_comments: {
         Row: {
           comment: string
@@ -140,6 +158,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           department: string | null
+          email: string | null
           full_name: string | null
           id: string
           updated_at: string
@@ -149,6 +168,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           department?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
@@ -158,6 +178,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           department?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string
@@ -283,7 +304,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_details_view: {
+        Row: {
+          department: string | null
+          email: string | null
+          full_name: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
