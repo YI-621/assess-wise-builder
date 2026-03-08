@@ -173,7 +173,7 @@ const Assessments = () => {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileSelect}
-                accept=".pdf,.doc,.docx,.xlsx,.csv"
+                accept=".pdf,.doc,.docx,.xlsx,.csv,.txt"
               />
             </div>
             {selectedFile && (
