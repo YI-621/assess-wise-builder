@@ -53,6 +53,7 @@ const activityColors: Record<string, string> = {
 };
 
 function AssessmentDetailDialog({ assessment, open, onClose }: { assessment: Assessment | null; open: boolean; onClose: () => void }) {
+  const navigate = useNavigate();
   if (!assessment) return null;
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -78,6 +79,15 @@ function AssessmentDetailDialog({ assessment, open, onClose }: { assessment: Ass
               <p className="text-destructive text-xs font-medium flex items-center gap-1"><Flag className="h-3 w-3" /> {assessment.flagReason}</p>
             </div>
           )}
+          <Button
+            className="w-full mt-2 gap-2"
+            onClick={() => {
+              onClose();
+              navigate(`/moderate?id=${assessment.id}`);
+            }}
+          >
+            <ExternalLink className="h-4 w-4" /> View Full Assessment
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
