@@ -206,7 +206,8 @@ function preScanBloom(questionText: string, bloomDict: Record<string, BloomEntry
 }
 
 // Map bloom level name to the 6-level Bloom names used in DB
-function normalizeBloomLevel(level: string): string {
+function normalizeBloomLevel(level: string | undefined): string {
+  if (!level) return "Knowledge";
   const l = level.toLowerCase().trim();
   if (l.includes("knowledge") || l === "remember" || l === "remembering") return "Knowledge";
   if (l.includes("comprehension") || l === "understand" || l === "understanding") return "Comprehension";
@@ -226,7 +227,8 @@ function complexityToNumber(c: string | undefined): number {
   return 50;
 }
 
-function bloomToDifficulty(bloomLevel: string): string {
+function bloomToDifficulty(bloomLevel: string | undefined): string {
+  if (!bloomLevel) return "Easy";
   const l = bloomLevel.toLowerCase();
   if (["knowledge", "comprehension", "remember", "understand"].some((x) => l.includes(x))) return "Easy";
   if (["application", "analysis", "apply", "analyze"].some((x) => l.includes(x))) return "Medium";
