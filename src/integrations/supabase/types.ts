@@ -220,6 +220,7 @@ export type Database = {
           id: string
           keywords: string[] | null
           marks: number
+          moderation_details: Json | null
           question_order: number
           similar_to: string | null
           similarity_score: number
@@ -234,6 +235,7 @@ export type Database = {
           id?: string
           keywords?: string[] | null
           marks?: number
+          moderation_details?: Json | null
           question_order?: number
           similar_to?: string | null
           similarity_score?: number
@@ -248,6 +250,7 @@ export type Database = {
           id?: string
           keywords?: string[] | null
           marks?: number
+          moderation_details?: Json | null
           question_order?: number
           similar_to?: string | null
           similarity_score?: number

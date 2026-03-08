@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import type { Assessment, Question } from "@/lib/mockData";
+import type { Assessment, Question, ModerationDetails } from "@/lib/mockData";
 
 // Types matching the database
 export interface DbAssessment {
@@ -33,6 +33,7 @@ export interface DbQuestion {
   keywords: string[];
   question_order: number;
   created_at: string;
+  moderation_details?: Record<string, any>;
 }
 
 export interface DbModerationComment {
@@ -86,6 +87,7 @@ export function toFrontendAssessment(a: DbAssessment, questions: DbQuestion[], l
         similarityScore: q.similarity_score,
         similarTo: q.similar_to ?? undefined,
         keywords: q.keywords ?? [],
+        moderationDetails: (q.moderation_details as ModerationDetails) ?? undefined,
       })),
   };
 }

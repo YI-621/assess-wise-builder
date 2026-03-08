@@ -1,5 +1,5 @@
-import { type Question, bloomColors, difficultyColors } from "@/lib/mockData";
-import { AlertTriangle, CheckCircle2, Copy, MessageSquare } from "lucide-react";
+import { type Question, bloomColors, difficultyColors, type ModerationDetails } from "@/lib/mockData";
+import { AlertTriangle, CheckCircle2, Copy, MessageSquare, FileWarning, Lightbulb, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuestionCardProps {
@@ -110,6 +110,38 @@ export function QuestionCard({ question, index, comment, onCommentChange, onComm
         <div className="mt-3 flex items-center gap-2 rounded-lg bg-success/5 border border-success/20 px-3 py-2">
           <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
           <p className="text-[11px] text-success">Good originality and complexity.</p>
+        </div>
+      )}
+
+      {/* Moderation Details from AI */}
+      {question.moderationDetails && (
+        <div className="mt-3 space-y-2">
+          {question.moderationDetails.grammar_errors && question.moderationDetails.grammar_errors !== "N/A" && question.moderationDetails.grammar_errors !== "None" && (
+            <div className="flex items-start gap-2 rounded-lg bg-warning/5 border border-warning/20 px-3 py-2">
+              <FileWarning className="h-3.5 w-3.5 text-warning shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[10px] font-semibold text-warning mb-0.5">Grammar/Spelling</p>
+                <p className="text-[11px] text-warning">{question.moderationDetails.grammar_errors}</p>
+              </div>
+            </div>
+          )}
+          {question.moderationDetails.suggestion && question.moderationDetails.suggestion !== "N/A" && (
+            <div className="flex items-start gap-2 rounded-lg bg-info/5 border border-info/20 px-3 py-2">
+              <Lightbulb className="h-3.5 w-3.5 text-info shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[10px] font-semibold text-info mb-0.5">Suggested Revision</p>
+                <p className="text-[11px] text-info">{question.moderationDetails.suggestion}</p>
+              </div>
+            </div>
+          )}
+          {question.moderationDetails.relevancy_to_scope && question.moderationDetails.relevancy_to_scope !== "N/A" && (
+            <div className="flex items-start gap-2 rounded-lg bg-muted/50 border border-border px-3 py-2">
+              <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+              <p className="text-[11px] text-muted-foreground">
+                <span className="font-semibold">Module Relevancy:</span> {question.moderationDetails.relevancy_to_scope}
+              </p>
+            </div>
+          )}
         </div>
       )}
 

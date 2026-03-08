@@ -1,6 +1,16 @@
 export type BloomLevel = "Knowledge" | "Comprehension" | "Application" | "Analysis" | "Synthesis" | "Evaluation";
 export type Difficulty = "Very Easy" | "Easy" | "Medium" | "Hard" | "Very Hard";
 
+export interface ModerationDetails {
+  question_id?: string;
+  grammar_errors?: string;
+  grammar_structure?: string;
+  relevancy_to_scope?: string;
+  suggestion?: string;
+  validated_bloom_keywords?: string;
+  raw_complexity?: string;
+}
+
 export interface Question {
   id: string;
   text: string;
@@ -11,6 +21,7 @@ export interface Question {
   similarityScore: number;
   similarTo?: string;
   keywords: string[];
+  moderationDetails?: ModerationDetails;
 }
 
 export interface ExamQuestion {
