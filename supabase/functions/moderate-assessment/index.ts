@@ -217,7 +217,8 @@ function normalizeBloomLevel(level: string): string {
   return "Knowledge";
 }
 
-function complexityToNumber(c: string): number {
+function complexityToNumber(c: string | undefined): number {
+  if (!c) return 50;
   const l = c.toLowerCase().trim();
   if (l === "high") return 80;
   if (l === "medium") return 50;
