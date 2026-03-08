@@ -122,7 +122,7 @@ export function QuestionCard({ question, index, comment, onCommentChange, readOn
         <div className="mt-4 border-t border-border pt-3">
           <div className="flex items-center gap-2 mb-2">
             <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Moderator Comment</span>
+            <span className="text-xs font-medium text-muted-foreground">Comment from Program Director</span>
           </div>
           {readOnly ? (
             <p className="text-sm text-muted-foreground italic">{comment || "No comment provided."}</p>
