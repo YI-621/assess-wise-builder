@@ -7,19 +7,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Save, Loader2, User, Plus, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Save, Loader2, User, Plus, X, ArrowRightLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
-  const { user, profile, roles } = useAuth();
+  const { user, profile, roles, activeRole, switchRole } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [department, setDepartment] = useState(profile?.department ?? "");
   const [saving, setSaving] = useState(false);
 
-  // Module management (stored locally for now as mock — can be persisted later)
   const [modules, setModules] = useState<string[]>([]);
   const [newModule, setNewModule] = useState("");
+
+  // Switchable roles: only lecturer and moderator (not admin — admin is always admin view)
+  const switchableRoles = roles.filter((r) => r === "lecturer" || r === "moderator");
+  const canSwitch = switchableRoles.length > 1;
 
   const initials = fullName
     ? fullName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -53,6 +59,22 @@ export default function Profile() {
     setModules(modules.filter((m) => m !== mod));
   };
 
+  const handleRoleSwitch = (role: string) => {
+    switchRole(role as any);
+    toast({ title: `Switched to ${role} view` });
+    // Redirect to appropriate home page
+    if (role === "moderator") navigate("/moderate");
+    else if (role === "lecturer") navigate("/");
+  };
+
+  const roleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "admin": return "destructive";
+      case "moderator": return "default";
+      default: return "secondary";
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
@@ -73,7 +95,10 @@ export default function Profile() {
               <CardDescription>{user?.email}</CardDescription>
               <div className="flex gap-1 mt-1">
                 {roles.map((r) => (
-                  <Badge key={r} variant="secondary" className="text-[10px]">{r}</Badge>
+                  <Badge key={r} variant={roleBadgeVariant(r) as any} className="text-[10px] capitalize">
+                    {r}
+                    {r === activeRole && <span className="ml-1 text-[8px]">●</span>}
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -92,6 +117,10 @@ export default function Profile() {
             <Label>Email</Label>
             <Input value={user?.email ?? ""} disabled className="bg-muted" />
           </div>
+          <div className="space-y-2">
+            <Label>Current Role</Label>
+            <p className="text-sm font-medium text-foreground capitalize">{activeRole ?? roles[0] ?? "—"}</p>
+          </div>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Changes
@@ -99,11 +128,35 @@ export default function Profile() {
         </CardContent>
       </Card>
 
+      {/* Role Switching */}
+      {canSwitch && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ArrowRightLeft className="h-5 w-5 text-primary" /> Switch Role
+            </CardTitle>
+            <CardDescription>You have multiple roles. Switch between Lecturer and Moderator views.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Select value={activeRole ?? ""} onValueChange={handleRoleSwitch}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                {switchableRoles.map((r) => (
+                  <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Modules Section */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">My Modules</CardTitle>
-          <CardDescription>Add the modules you are teaching or enrolled in</CardDescription>
+          <CardDescription>Add the modules you are teaching or moderating</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">

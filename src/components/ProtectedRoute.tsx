@@ -18,12 +18,13 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 }
 
 export function RoleRoute({ children, allowedRoles, fallback }: { children: React.ReactNode; allowedRoles: string[]; fallback?: string }) {
-  const { user, loading, roles } = useAuth();
+  const { user, loading, activeRole, roles } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!user) return <Navigate to="/auth" replace />;
-  if (!roles.some((r) => allowedRoles.includes(r))) {
-    // Smart redirect based on role
-    const redirectTo = fallback || (roles.includes("moderator") ? "/moderate" : roles.includes("lecturer") ? "/" : "/profile");
+  
+  const currentRole = activeRole ?? roles[0];
+  if (!currentRole || !allowedRoles.includes(currentRole)) {
+    const redirectTo = fallback || (currentRole === "moderator" ? "/moderate" : currentRole === "lecturer" ? "/" : "/profile");
     return <Navigate to={redirectTo} replace />;
   }
   return <>{children}</>;

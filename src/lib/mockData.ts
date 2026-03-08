@@ -1,5 +1,5 @@
 export type BloomLevel = "Remember" | "Understand" | "Apply" | "Analyze" | "Evaluate" | "Create";
-export type Difficulty = "Easy" | "Medium" | "Hard";
+export type Difficulty = "Very Easy" | "Easy" | "Medium" | "Hard" | "Very Hard";
 
 export interface Question {
   id: string;
@@ -7,8 +7,8 @@ export interface Question {
   marks: number;
   bloomLevel: BloomLevel;
   difficulty: Difficulty;
-  complexity: number; // 0-100
-  similarityScore: number; // 0-100 with historical
+  complexity: number;
+  similarityScore: number;
   similarTo?: string;
   keywords: string[];
 }
@@ -18,10 +18,21 @@ export interface Assessment {
   title: string;
   course: string;
   lecturer: string;
+  moderator?: string;
   date: string;
   status: "Pending" | "Reviewed" | "Approved" | "Rejected";
   questions: Question[];
   overallScore: number;
+  flagged?: boolean;
+  flagReason?: string;
+}
+
+export interface ActivityLog {
+  id: string;
+  type: "upload" | "moderation_complete" | "flagged" | "approved" | "rejected";
+  description: string;
+  user: string;
+  timestamp: string;
 }
 
 export const sampleQuestions: Question[] = [
@@ -30,8 +41,8 @@ export const sampleQuestions: Question[] = [
     text: "Define the concept of polymorphism in object-oriented programming.",
     marks: 5,
     bloomLevel: "Remember",
-    difficulty: "Easy",
-    complexity: 22,
+    difficulty: "Very Easy",
+    complexity: 12,
     similarityScore: 78,
     similarTo: "CS201 Final 2023 Q3",
     keywords: ["polymorphism", "OOP", "definition"],
@@ -41,8 +52,8 @@ export const sampleQuestions: Question[] = [
     text: "Explain how inheritance promotes code reusability with examples.",
     marks: 10,
     bloomLevel: "Understand",
-    difficulty: "Medium",
-    complexity: 45,
+    difficulty: "Easy",
+    complexity: 35,
     similarityScore: 42,
     keywords: ["inheritance", "reusability", "examples"],
   },
@@ -82,8 +93,8 @@ export const sampleQuestions: Question[] = [
     text: "Design a RESTful API for a library management system.",
     marks: 20,
     bloomLevel: "Create",
-    difficulty: "Hard",
-    complexity: 90,
+    difficulty: "Very Hard",
+    complexity: 95,
     similarityScore: 8,
     keywords: ["REST", "API", "design", "system design"],
   },
@@ -95,16 +106,20 @@ export const sampleAssessments: Assessment[] = [
     title: "CS201 Data Structures Final Exam",
     course: "CS201 - Data Structures",
     lecturer: "Dr. Sarah Chen",
+    moderator: "Dr. Alan Tan",
     date: "2026-02-10",
     status: "Pending",
     questions: sampleQuestions,
     overallScore: 72,
+    flagged: true,
+    flagReason: "High similarity detected in Q1 (78%)",
   },
   {
     id: "a2",
     title: "CS101 Intro to Programming Midterm",
     course: "CS101 - Intro to Programming",
     lecturer: "Prof. James Miller",
+    moderator: "Dr. Lisa Wong",
     date: "2026-02-08",
     status: "Approved",
     questions: sampleQuestions.slice(0, 3),
@@ -115,21 +130,37 @@ export const sampleAssessments: Assessment[] = [
     title: "CS305 Algorithms Quiz 2",
     course: "CS305 - Algorithms",
     lecturer: "Dr. Maria Lopez",
+    moderator: "Dr. Alan Tan",
     date: "2026-02-05",
     status: "Reviewed",
     questions: sampleQuestions.slice(2, 5),
     overallScore: 64,
+    flagged: true,
+    flagReason: "Low complexity in multiple questions",
   },
   {
     id: "a4",
     title: "CS410 Software Engineering Assignment",
     course: "CS410 - Software Engineering",
     lecturer: "Prof. David Kim",
+    moderator: "Dr. Lisa Wong",
     date: "2026-01-28",
     status: "Rejected",
     questions: sampleQuestions.slice(0, 2),
     overallScore: 38,
+    flagged: true,
+    flagReason: "Overall score below threshold (38%)",
   },
+];
+
+export const sampleActivityLogs: ActivityLog[] = [
+  { id: "log1", type: "upload", description: "CS201 Data Structures Final Exam uploaded", user: "Dr. Sarah Chen", timestamp: "2026-02-10 14:30" },
+  { id: "log2", type: "moderation_complete", description: "CS101 Intro to Programming Midterm moderation completed", user: "Dr. Lisa Wong", timestamp: "2026-02-09 10:15" },
+  { id: "log3", type: "flagged", description: "CS305 Algorithms Quiz 2 flagged for low complexity", user: "System", timestamp: "2026-02-06 09:00" },
+  { id: "log4", type: "approved", description: "CS101 Intro to Programming Midterm approved", user: "Dr. Lisa Wong", timestamp: "2026-02-09 10:20" },
+  { id: "log5", type: "rejected", description: "CS410 Software Engineering Assignment rejected", user: "Dr. Lisa Wong", timestamp: "2026-01-29 16:45" },
+  { id: "log6", type: "upload", description: "CS305 Algorithms Quiz 2 uploaded", user: "Dr. Maria Lopez", timestamp: "2026-02-05 08:30" },
+  { id: "log7", type: "upload", description: "CS410 Software Engineering Assignment uploaded", user: "Prof. David Kim", timestamp: "2026-01-28 11:00" },
 ];
 
 export const bloomColors: Record<BloomLevel, string> = {
@@ -142,7 +173,9 @@ export const bloomColors: Record<BloomLevel, string> = {
 };
 
 export const difficultyColors: Record<Difficulty, string> = {
+  "Very Easy": "bg-emerald-400",
   Easy: "bg-difficulty-easy",
   Medium: "bg-difficulty-medium",
   Hard: "bg-difficulty-hard",
+  "Very Hard": "bg-red-700",
 };

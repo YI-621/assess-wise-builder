@@ -1,28 +1,36 @@
-import { ClipboardCheck, FileText, History, Home, LogOut, Shield, User } from "lucide-react";
+import { ClipboardCheck, FileText, History, Home, LogOut, Shield, User, Users } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const allNavItems = [
-  { to: "/", icon: Home, label: "Dashboard", roles: ["lecturer"] },
-  { to: "/assessments", icon: FileText, label: "Assessments", roles: ["lecturer"] },
-  { to: "/moderate", icon: ClipboardCheck, label: "Moderate", roles: ["moderator"] },
-  { to: "/history", icon: History, label: "History", roles: ["moderator"] },
-];
+const roleNavItems: Record<string, { to: string; icon: any; label: string }[]> = {
+  lecturer: [
+    { to: "/", icon: Home, label: "Dashboard" },
+    { to: "/assessments", icon: FileText, label: "Assessments" },
+  ],
+  moderator: [
+    { to: "/moderate", icon: ClipboardCheck, label: "Moderate" },
+    { to: "/history", icon: History, label: "History" },
+  ],
+  admin: [
+    { to: "/", icon: Home, label: "Dashboard" },
+    { to: "/supervision", icon: Users, label: "Supervision" },
+    { to: "/admin", icon: Shield, label: "Admin" },
+  ],
+};
 
 export function AppSidebar() {
   const location = useLocation();
-  const { profile, isAdmin, roles, signOut, user } = useAuth();
+  const { profile, activeRole, roles, signOut, user } = useAuth();
 
-  // Admin sees everything; others see role-filtered items
-  const navItems = isAdmin
-    ? allNavItems
-    : allNavItems.filter((item) => roles.some((r) => item.roles.includes(r)));
+  const navItems = roleNavItems[activeRole ?? "lecturer"] ?? roleNavItems.lecturer;
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : user?.email?.[0]?.toUpperCase() ?? "?";
+
+  const displayRole = activeRole ?? roles[0] ?? "Lecturer";
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card flex flex-col">
@@ -52,21 +60,6 @@ export function AppSidebar() {
             {item.label}
           </NavLink>
         ))}
-
-        {isAdmin && (
-          <NavLink
-            to="/admin"
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              location.pathname === "/admin"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-            )}
-          >
-            <Shield className="h-4 w-4" />
-            Admin
-          </NavLink>
-        )}
       </nav>
 
       <div className="border-t border-border p-3 space-y-1">
@@ -84,7 +77,7 @@ export function AppSidebar() {
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{profile?.full_name || user?.email}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{profile?.department || "Lecturer"}</p>
+            <p className="text-[10px] text-muted-foreground truncate capitalize">{displayRole}</p>
           </div>
         </NavLink>
         <button

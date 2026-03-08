@@ -1,9 +1,15 @@
-import { FileText, ClipboardCheck, CheckCircle, AlertTriangle } from "lucide-react";
+import { FileText, ClipboardCheck, CheckCircle, AlertTriangle, Users, BarChart3, Eye, Upload, Flag, Activity } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { RecentAssessments } from "@/components/dashboard/RecentAssessments";
 import { BloomDistribution } from "@/components/dashboard/BloomDistribution";
-import { sampleAssessments, sampleQuestions, type BloomLevel } from "@/lib/mockData";
+import { sampleAssessments, sampleQuestions, sampleActivityLogs, type BloomLevel } from "@/lib/mockData";
+import { useAuth } from "@/hooks/useAuth";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import type { Assessment } from "@/lib/mockData";
 
 const bloomData: { name: BloomLevel; count: number; color: string }[] = [
   { name: "Remember", count: sampleQuestions.filter((q) => q.bloomLevel === "Remember").length, color: "hsl(280, 67%, 50%)" },
@@ -15,29 +21,75 @@ const bloomData: { name: BloomLevel; count: number; color: string }[] = [
 ];
 
 const difficultyData = [
+  { name: "Very Easy", count: sampleQuestions.filter((q) => q.difficulty === "Very Easy").length, color: "hsl(160, 84%, 39%)" },
   { name: "Easy", count: sampleQuestions.filter((q) => q.difficulty === "Easy").length, color: "hsl(142, 71%, 45%)" },
   { name: "Medium", count: sampleQuestions.filter((q) => q.difficulty === "Medium").length, color: "hsl(38, 92%, 50%)" },
   { name: "Hard", count: sampleQuestions.filter((q) => q.difficulty === "Hard").length, color: "hsl(0, 72%, 51%)" },
+  { name: "Very Hard", count: sampleQuestions.filter((q) => q.difficulty === "Very Hard").length, color: "hsl(0, 72%, 35%)" },
 ];
 
-const complexityData = sampleQuestions.map((q, i) => ({
-  name: `Q${i + 1}`,
-  complexity: q.complexity,
-  similarity: q.similarityScore,
-}));
+const statusStyles: Record<string, string> = {
+  Pending: "bg-warning/10 text-warning border-warning/20",
+  Reviewed: "bg-info/10 text-info border-info/20",
+  Approved: "bg-success/10 text-success border-success/20",
+  Rejected: "bg-destructive/10 text-destructive border-destructive/20",
+};
 
-const Dashboard = () => {
+const activityIcons: Record<string, any> = {
+  upload: Upload,
+  moderation_complete: CheckCircle,
+  flagged: Flag,
+  approved: CheckCircle,
+  rejected: AlertTriangle,
+};
+
+const activityColors: Record<string, string> = {
+  upload: "text-primary",
+  moderation_complete: "text-success",
+  flagged: "text-warning",
+  approved: "text-success",
+  rejected: "text-destructive",
+};
+
+function AssessmentDetailDialog({ assessment, open, onClose }: { assessment: Assessment | null; open: boolean; onClose: () => void }) {
+  if (!assessment) return null;
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{assessment.title}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 text-sm">
+          <div className="grid grid-cols-2 gap-3">
+            <div><span className="text-muted-foreground">Course:</span> <span className="font-medium">{assessment.course}</span></div>
+            <div><span className="text-muted-foreground">Date Uploaded:</span> <span className="font-medium">{assessment.date}</span></div>
+            <div><span className="text-muted-foreground">Lecturer:</span> <span className="font-medium">{assessment.lecturer}</span></div>
+            <div><span className="text-muted-foreground">Moderator:</span> <span className="font-medium">{assessment.moderator ?? "—"}</span></div>
+            <div><span className="text-muted-foreground">Overall Score:</span> <span className="font-medium">{assessment.overallScore}%</span></div>
+            <div><span className="text-muted-foreground">Questions:</span> <span className="font-medium">{assessment.questions.length}</span></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Status:</span>
+            <Badge variant="outline" className={cn("text-[10px] font-medium border", statusStyles[assessment.status])}>{assessment.status}</Badge>
+          </div>
+          {assessment.flagged && (
+            <div className="rounded-lg bg-destructive/5 border border-destructive/20 p-3">
+              <p className="text-destructive text-xs font-medium flex items-center gap-1"><Flag className="h-3 w-3" /> {assessment.flagReason}</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function LecturerDashboard() {
   const pending = sampleAssessments.filter((a) => a.status === "Pending").length;
   const done = sampleAssessments.filter((a) => a.status === "Approved" || a.status === "Reviewed").length;
   const flagged = sampleQuestions.filter((q) => q.similarityScore > 50 || q.complexity < 30).length;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Dashboard</h2>
-        <p className="text-sm text-muted-foreground mt-1">Overview of your assessment activity</p>
-      </div>
-
+    <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={FileText} title="Total Assessments" value={sampleAssessments.length} subtitle="Uploaded by you" variant="primary" />
         <StatCard icon={ClipboardCheck} title="Pending Review" value={pending} subtitle="Awaiting moderation" variant="warning" />
@@ -46,58 +98,177 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3">
-          <RecentAssessments />
-        </div>
-        <div className="lg:col-span-2">
-          <BloomDistribution />
-        </div>
+        <div className="lg:col-span-3"><RecentAssessments /></div>
+        <div className="lg:col-span-2"><BloomDistribution /></div>
       </div>
 
-      {/* Analytics Section */}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-5 animate-fade-in">
           <h3 className="text-sm font-semibold text-card-foreground mb-4">Bloom's Taxonomy Distribution</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie data={bloomData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name }) => name}>
-                {bloomData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color} />
-                ))}
+                {bloomData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
-
         <div className="rounded-xl border border-border bg-card p-5 animate-fade-in">
           <h3 className="text-sm font-semibold text-card-foreground mb-4">Difficulty Breakdown</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie data={difficultyData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name }) => name}>
-                {difficultyData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color} />
-                ))}
+                {difficultyData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
+      </div>
+    </>
+  );
+}
 
-        <div className="rounded-xl border border-border bg-card p-5 animate-fade-in lg:col-span-2">
-          <h3 className="text-sm font-semibold text-card-foreground mb-4">Complexity vs Similarity per Question</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={complexityData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 91%)" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
+function AdminDashboard() {
+  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+
+  const pending = sampleAssessments.filter((a) => a.status === "Pending").length;
+  const flaggedAssessments = sampleAssessments.filter((a) => a.flagged);
+  const avgScore = Math.round(sampleAssessments.reduce((sum, a) => sum + a.overallScore, 0) / sampleAssessments.length);
+
+  return (
+    <>
+      {/* Top stats row */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={FileText} title="Total Submitted" value={sampleAssessments.length} subtitle="For moderation" variant="primary" />
+        <StatCard icon={ClipboardCheck} title="Pending Review" value={pending} subtitle="Awaiting moderation" variant="warning" />
+        <StatCard icon={Users} title="Lecturers" value={4} subtitle="Under supervision" variant="success" />
+        <StatCard icon={BarChart3} title="Avg Score" value={`${avgScore}%`} subtitle="Submitted assessments" variant="primary" />
+      </div>
+
+      {/* Recent Assessments (clickable) + Flagged Assessments */}
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <div className="rounded-xl border border-border bg-card animate-fade-in">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <h3 className="text-sm font-semibold text-card-foreground">Recent Assessments</h3>
+            </div>
+            <div className="divide-y divide-border">
+              {sampleAssessments.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedAssessment(a)}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-card-foreground truncate">{a.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{a.lecturer} · {a.date}</p>
+                  </div>
+                  <div className="flex items-center gap-3 ml-4">
+                    <span className="text-xs font-mono text-muted-foreground">{a.questions.length}Q</span>
+                    <Badge variant="outline" className={cn("text-[10px] font-medium border", statusStyles[a.status])}>{a.status}</Badge>
+                    {a.flagged && <Flag className="h-3 w-3 text-destructive" />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Flagged Assessments */}
+        <div className="lg:col-span-2">
+          <div className="rounded-xl border border-border bg-card animate-fade-in">
+            <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+              <Flag className="h-4 w-4 text-destructive" />
+              <h3 className="text-sm font-semibold text-card-foreground">Flagged Assessments</h3>
+            </div>
+            <div className="divide-y divide-border">
+              {flaggedAssessments.length > 0 ? flaggedAssessments.map((a) => (
+                <div
+                  key={a.id}
+                  className="px-5 py-3.5 hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedAssessment(a)}
+                >
+                  <p className="text-sm font-medium text-card-foreground">{a.title}</p>
+                  <p className="text-xs text-destructive mt-1">{a.flagReason}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{a.lecturer} · {a.date}</p>
+                </div>
+              )) : (
+                <p className="text-sm text-muted-foreground px-5 py-6 text-center">No flagged assessments</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-5 animate-fade-in">
+          <h3 className="text-sm font-semibold text-card-foreground mb-4">Bloom's Taxonomy Distribution</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie data={bloomData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name }) => name}>
+                {bloomData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
+              </Pie>
               <Tooltip />
-              <Bar dataKey="complexity" fill="hsl(234, 89%, 56%)" radius={[4, 4, 0, 0]} name="Complexity" />
-              <Bar dataKey="similarity" fill="hsl(38, 92%, 50%)" radius={[4, 4, 0, 0]} name="Similarity" />
-            </BarChart>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5 animate-fade-in">
+          <h3 className="text-sm font-semibold text-card-foreground mb-4">Difficulty Breakdown</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie data={difficultyData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name }) => name}>
+                {difficultyData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
+              </Pie>
+              <Tooltip />
+            </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Recent Activity */}
+      <div className="rounded-xl border border-border bg-card animate-fade-in">
+        <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+          <Activity className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-card-foreground">Recent Activity</h3>
+        </div>
+        <div className="divide-y divide-border">
+          {sampleActivityLogs.map((log) => {
+            const Icon = activityIcons[log.type] || Activity;
+            return (
+              <div key={log.id} className="flex items-start gap-3 px-5 py-3">
+                <Icon className={cn("h-4 w-4 mt-0.5 shrink-0", activityColors[log.type])} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-card-foreground">{log.description}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{log.user} · {log.timestamp}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <AssessmentDetailDialog assessment={selectedAssessment} open={!!selectedAssessment} onClose={() => setSelectedAssessment(null)} />
+    </>
+  );
+}
+
+const Dashboard = () => {
+  const { activeRole, roles } = useAuth();
+  const role = activeRole ?? roles[0];
+  const isAdminView = role === "admin";
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Dashboard</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isAdminView ? "Administrative overview of all assessment activity" : "Overview of your assessment activity"}
+        </p>
+      </div>
+      {isAdminView ? <AdminDashboard /> : <LecturerDashboard />}
     </div>
   );
 };
