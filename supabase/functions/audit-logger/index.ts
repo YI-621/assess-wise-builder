@@ -15,12 +15,27 @@ serve(async (req) => {
     // 2. Catch the data sent from your React app
     const { userEmail, action, documentName } = await req.json()
 
-    // 3. Get your secure cloud keys from Supabase environment variables
-    const ELASTIC_URL = Deno.env.get('ELASTIC_URL');
-    const ELASTIC_API_KEY = Deno.env.get('ELASTIC_API_KEY');
+    // 3. Get and normalize secrets
+    const rawElasticUrl = (Deno.env.get('ELASTIC_URL') ?? '').trim();
+    const rawElasticApiKey = (Deno.env.get('ELASTIC_API_KEY') ?? '').trim();
 
-    if (!ELASTIC_URL || !ELASTIC_API_KEY) {
+    if (!rawElasticUrl || !rawElasticApiKey) {
       throw new Error("Missing Elastic Cloud configuration!");
+    }
+
+    // Accept accidental pasted labels/text by taking the first URL-like token
+    const elasticUrl = rawElasticUrl.split(/\s+/)[0].replace(/\/+$/, '');
+    const elasticApiKey = rawElasticApiKey.split(/\s+/).filter(Boolean).slice(-1)[0];
+
+    let validatedUrl: URL;
+    try {
+      validatedUrl = new URL(elasticUrl);
+    } catch {
+      throw new Error("ELASTIC_URL is not a valid URL. Please store only the base URL.");
+    }
+
+    if (!['http:', 'https:'].includes(validatedUrl.protocol)) {
+      throw new Error("ELASTIC_URL must start with http:// or https://");
     }
 
     // 4. Format the audit log
@@ -33,11 +48,11 @@ serve(async (req) => {
     }
 
     // 5. Send DIRECTLY to Elastic Cloud (to an index named 'exam-audit-logs')
-    const response = await fetch(`${ELASTIC_URL}/exam-audit-logs/_doc`, {
+    const response = await fetch(`${validatedUrl.origin}/exam-audit-logs/_doc`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `ApiKey ${ELASTIC_API_KEY}` 
+        'Authorization': `ApiKey ${elasticApiKey}` 
       },
       body: JSON.stringify(auditEvent)
     });
