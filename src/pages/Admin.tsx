@@ -86,10 +86,22 @@ export default function Admin() {
     }
   };
 
-  const updateRole = async (userId: string, newRole: string) => {
-    await supabase.from("user_roles").delete().eq("user_id", userId);
-    await supabase.from("user_roles").insert({ user_id: userId, role: newRole as any });
-    toast({ title: "Role updated" });
+  const toggleRole = async (userId: string, role: string) => {
+    const user = users.find((u) => u.user_id === userId);
+    if (!user) return;
+    const hasRole = user.roles.includes(role);
+    if (hasRole) {
+      // Don't allow removing the last role
+      if (user.roles.length <= 1) {
+        toast({ title: "Cannot remove last role", description: "A user must have at least one role", variant: "destructive" });
+        return;
+      }
+      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as any);
+      toast({ title: `Removed ${role} role` });
+    } else {
+      await supabase.from("user_roles").insert({ user_id: userId, role: role as any });
+      toast({ title: `Added ${role} role` });
+    }
     fetchUsers();
   };
 
