@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import AssessmentDetail from "./pages/AssessmentDetail";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/assessments" element={<RoleRoute allowedRoles={["lecturer", "admin"]} fallback="/moderate"><Assessments /></RoleRoute>} />
               <Route path="/moderate" element={<RoleRoute allowedRoles={["moderator", "admin"]}><Moderate /></RoleRoute>} />
               <Route path="/history" element={<RoleRoute allowedRoles={["moderator", "admin"]}><HistoryPage /></RoleRoute>} />
+              <Route path="/assessment-detail" element={<RoleRoute allowedRoles={["lecturer", "admin"]}><AssessmentDetail /></RoleRoute>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/supervision" element={<AdminRoute><Supervision /></AdminRoute>} />
               <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
