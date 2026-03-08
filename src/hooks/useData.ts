@@ -33,6 +33,7 @@ export interface DbQuestion {
   keywords: string[];
   question_order: number;
   created_at: string;
+  moderation_details?: Record<string, any>;
 }
 
 export interface DbModerationComment {
