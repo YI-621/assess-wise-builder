@@ -180,8 +180,7 @@ export default function Admin() {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Department</TableHead>
-                      <TableHead>Current Role</TableHead>
-                      <TableHead>Change Role</TableHead>
+                      <TableHead>Roles</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -190,21 +189,21 @@ export default function Admin() {
                         <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
                         <TableCell>{u.department || "—"}</TableCell>
                         <TableCell>
-                          {u.roles.map((r) => (
-                            <Badge key={r} variant={roleBadgeColor(r) as any} className="mr-1">{r}</Badge>
-                          ))}
-                        </TableCell>
-                        <TableCell>
-                          <Select onValueChange={(val) => updateRole(u.user_id, val)}>
-                            <SelectTrigger className="w-36">
-                              <SelectValue placeholder="Change role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="moderator">Moderator</SelectItem>
-                              <SelectItem value="lecturer">Lecturer</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex gap-2">
+                            {(["admin", "moderator", "lecturer"] as const).map((role) => {
+                              const active = u.roles.includes(role);
+                              return (
+                                <Badge
+                                  key={role}
+                                  variant={active ? roleBadgeColor(role) as any : "outline"}
+                                  className={`cursor-pointer select-none transition-opacity ${!active ? "opacity-40" : ""}`}
+                                  onClick={() => toggleRole(u.user_id, role)}
+                                >
+                                  {role}
+                                </Badge>
+                              );
+                            })}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
