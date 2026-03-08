@@ -56,15 +56,35 @@ const Assessments = () => {
 
     setUploading(true);
     try {
-      // 1. Upload file to storage
-      const fileExt = selectedFile.name.split('.').pop();
+      // 1. Extract text from PDF on the frontend
+      let extractedText = "";
+      const fileExt = selectedFile.name.split('.').pop()?.toLowerCase();
+      if (fileExt === "pdf") {
+        toast({ title: "Extracting text from PDF...", description: "Please wait while we parse the document." });
+        extractedText = await extractTextFromPdf(selectedFile);
+        if (!extractedText.trim()) {
+          throw new Error("Could not extract text from the PDF. The file may be scanned or image-based.");
+        }
+      } else {
+        // For text files, read directly
+        extractedText = await selectedFile.text();
+      }
+
+      // 2. Upload file to storage
       const fileName = `${user.id}/${Date.now()}_${selectedFile.name}`;
       const { error: uploadError } = await supabase.storage
         .from("assessments")
         .upload(fileName, selectedFile);
       if (uploadError) throw uploadError;
 
-      // 2. Find a moderator assigned to this module code
+      // 3. Also upload extracted text alongside
+      const textFileName = `${fileName}.extracted.txt`;
+      const { error: textUploadError } = await supabase.storage
+        .from("assessments")
+        .upload(textFileName, new Blob([extractedText], { type: "text/plain" }));
+      if (textUploadError) console.warn("Text upload warning:", textUploadError.message);
+
+      // 4. Find a moderator assigned to this module code
       const { data: moderatorMapping } = await supabase
         .from("moderator_modules")
         .select("user_id")
@@ -72,7 +92,7 @@ const Assessments = () => {
         .limit(1)
         .maybeSingle();
 
-      // 3. Create assessment record
+      // 5. Create assessment record
       const { data: newAssessment, error } = await supabase
         .from("assessments")
         .insert({
@@ -89,7 +109,7 @@ const Assessments = () => {
 
       if (error) throw error;
 
-      // 4. Trigger automated moderation via edge function
+      // 6. Trigger automated moderation via edge function with pre-extracted text
       toast({
         title: "Assessment uploaded",
         description: "Running automated moderation analysis...",
@@ -97,7 +117,7 @@ const Assessments = () => {
 
       try {
         const { data: modResult, error: modError } = await supabase.functions.invoke("moderate-assessment", {
-          body: { assessment_id: newAssessment.id },
+          body: { assessment_id: newAssessment.id, extracted_text: extractedText },
         });
         if (modError) {
           console.error("Moderation error:", modError);
