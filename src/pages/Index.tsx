@@ -81,12 +81,12 @@ function useChartData(assessments: Assessment[]) {
   const allQuestions = assessments.flatMap((a) => a.questions);
 
   const bloomData: { name: BloomLevel; count: number; color: string }[] = [
-    { name: "Remember", count: allQuestions.filter((q) => q.bloomLevel === "Remember").length, color: "hsl(280, 67%, 50%)" },
-    { name: "Understand", count: allQuestions.filter((q) => q.bloomLevel === "Understand").length, color: "hsl(234, 89%, 56%)" },
-    { name: "Apply", count: allQuestions.filter((q) => q.bloomLevel === "Apply").length, color: "hsl(199, 89%, 48%)" },
-    { name: "Analyze", count: allQuestions.filter((q) => q.bloomLevel === "Analyze").length, color: "hsl(142, 71%, 45%)" },
-    { name: "Evaluate", count: allQuestions.filter((q) => q.bloomLevel === "Evaluate").length, color: "hsl(38, 92%, 50%)" },
-    { name: "Create", count: allQuestions.filter((q) => q.bloomLevel === "Create").length, color: "hsl(0, 72%, 51%)" },
+    { name: "Knowledge", count: allQuestions.filter((q) => q.bloomLevel === "Knowledge").length, color: "hsl(280, 67%, 50%)" },
+    { name: "Comprehension", count: allQuestions.filter((q) => q.bloomLevel === "Comprehension").length, color: "hsl(234, 89%, 56%)" },
+    { name: "Application", count: allQuestions.filter((q) => q.bloomLevel === "Application").length, color: "hsl(199, 89%, 48%)" },
+    { name: "Analysis", count: allQuestions.filter((q) => q.bloomLevel === "Analysis").length, color: "hsl(142, 71%, 45%)" },
+    { name: "Synthesis", count: allQuestions.filter((q) => q.bloomLevel === "Synthesis").length, color: "hsl(38, 92%, 50%)" },
+    { name: "Evaluation", count: allQuestions.filter((q) => q.bloomLevel === "Evaluation").length, color: "hsl(0, 72%, 51%)" },
   ];
 
   const difficultyData = [

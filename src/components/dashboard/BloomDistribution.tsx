@@ -1,12 +1,12 @@
 import { sampleQuestions, type BloomLevel } from "@/lib/mockData";
 
 const bloomLevels: { level: BloomLevel; color: string }[] = [
-  { level: "Remember", color: "bg-bloom-remember" },
-  { level: "Understand", color: "bg-bloom-understand" },
-  { level: "Apply", color: "bg-bloom-apply" },
-  { level: "Analyze", color: "bg-bloom-analyze" },
-  { level: "Evaluate", color: "bg-bloom-evaluate" },
-  { level: "Create", color: "bg-bloom-create" },
+  { level: "Knowledge", color: "bg-bloom-remember" },
+  { level: "Comprehension", color: "bg-bloom-understand" },
+  { level: "Application", color: "bg-bloom-apply" },
+  { level: "Analysis", color: "bg-bloom-analyze" },
+  { level: "Synthesis", color: "bg-bloom-evaluate" },
+  { level: "Evaluation", color: "bg-bloom-create" },
 ];
 
 export function BloomDistribution() {
@@ -22,7 +22,7 @@ export function BloomDistribution() {
       <div className="space-y-3">
         {counts.map((b) => (
           <div key={b.level} className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground w-20 shrink-0">{b.level}</span>
+            <span className="text-xs text-muted-foreground w-24 shrink-0">{b.level}</span>
             <div className="flex-1 h-6 bg-muted rounded-md overflow-hidden">
               <div
                 className={`${b.color} h-full rounded-md transition-all duration-700`}
