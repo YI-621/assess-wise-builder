@@ -11,6 +11,7 @@ import Assessments from "./pages/Assessments";
 import Moderate from "./pages/Moderate";
 import HistoryPage from "./pages/HistoryPage";
 import Admin from "./pages/Admin";
+import Supervision from "./pages/Supervision";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import Profile from "./pages/Profile";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/moderate" element={<RoleRoute allowedRoles={["moderator", "admin"]}><Moderate /></RoleRoute>} />
               <Route path="/history" element={<RoleRoute allowedRoles={["moderator", "admin"]}><HistoryPage /></RoleRoute>} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/supervision" element={<AdminRoute><Supervision /></AdminRoute>} />
               <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
