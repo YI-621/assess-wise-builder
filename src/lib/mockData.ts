@@ -1,4 +1,4 @@
-export type BloomLevel = "Remember" | "Understand" | "Apply" | "Analyze" | "Evaluate" | "Create";
+export type BloomLevel = "Knowledge" | "Comprehension" | "Application" | "Analysis" | "Synthesis" | "Evaluation";
 export type Difficulty = "Very Easy" | "Easy" | "Medium" | "Hard" | "Very Hard";
 
 export interface Question {
@@ -11,6 +11,12 @@ export interface Question {
   similarityScore: number;
   similarTo?: string;
   keywords: string[];
+}
+
+export interface ExamQuestion {
+  id: number;
+  question_id: string;
+  question_text: string;
 }
 
 export interface Assessment {
@@ -38,73 +44,73 @@ export interface ActivityLog {
 export const sampleQuestions: Question[] = [
   {
     id: "q1",
-    text: "Define the concept of polymorphism in object-oriented programming.",
+    text: "Business performance in challenging economic conditions.",
     marks: 5,
-    bloomLevel: "Remember",
+    bloomLevel: "Knowledge",
     difficulty: "Very Easy",
     complexity: 12,
     similarityScore: 78,
     similarTo: "CS201 Final 2023 Q3",
-    keywords: ["polymorphism", "OOP", "definition"],
+    keywords: ["business", "performance", "economics"],
   },
   {
     id: "q2",
-    text: "Explain how inheritance promotes code reusability with examples.",
+    text: "Widespread adoption of new Information Technology.",
     marks: 10,
-    bloomLevel: "Understand",
+    bloomLevel: "Comprehension",
     difficulty: "Easy",
     complexity: 35,
     similarityScore: 42,
-    keywords: ["inheritance", "reusability", "examples"],
+    keywords: ["IT", "adoption", "technology"],
   },
   {
     id: "q3",
-    text: "Implement a binary search tree with insert, delete and search operations.",
+    text: "Information systems do not create value directly.",
     marks: 20,
-    bloomLevel: "Apply",
+    bloomLevel: "Application",
     difficulty: "Hard",
     complexity: 78,
     similarityScore: 15,
-    keywords: ["BST", "implementation", "data structures"],
+    keywords: ["information systems", "value creation"],
   },
   {
     id: "q4",
-    text: "Compare and contrast stack and queue data structures in terms of use cases.",
+    text: "Threat of entry of new competitors is one of Porter's Five Forces.",
     marks: 10,
-    bloomLevel: "Analyze",
+    bloomLevel: "Analysis",
     difficulty: "Medium",
     complexity: 55,
     similarityScore: 61,
-    similarTo: "CS101 Midterm 2024 Q7",
-    keywords: ["stack", "queue", "comparison"],
+    similarTo: "BUS101 Midterm 2024 Q7",
+    keywords: ["Porter", "five forces", "competition"],
   },
   {
     id: "q5",
-    text: "Evaluate the efficiency of quicksort vs mergesort for large datasets.",
+    text: "Threat of bargaining power of suppliers.",
     marks: 15,
-    bloomLevel: "Evaluate",
+    bloomLevel: "Synthesis",
     difficulty: "Hard",
     complexity: 82,
     similarityScore: 33,
-    keywords: ["sorting", "efficiency", "algorithms"],
+    keywords: ["suppliers", "bargaining power", "strategy"],
   },
   {
     id: "q6",
-    text: "Design a RESTful API for a library management system.",
+    text: "State TWO reasons why a seemingly well-run organization might fail.",
     marks: 20,
-    bloomLevel: "Create",
+    bloomLevel: "Evaluation",
     difficulty: "Very Hard",
     complexity: 95,
     similarityScore: 8,
-    keywords: ["REST", "API", "design", "system design"],
+    keywords: ["organizational failure", "management", "analysis"],
   },
 ];
 
 export const sampleAssessments: Assessment[] = [
   {
     id: "a1",
-    title: "CS201 Data Structures Final Exam",
-    course: "CS201 - Data Structures",
+    title: "BUS201 Strategic Management Final Exam",
+    course: "BUS201 - Strategic Management",
     lecturer: "Dr. Sarah Chen",
     moderator: "Dr. Alan Tan",
     date: "2026-02-10",
@@ -116,8 +122,8 @@ export const sampleAssessments: Assessment[] = [
   },
   {
     id: "a2",
-    title: "CS101 Intro to Programming Midterm",
-    course: "CS101 - Intro to Programming",
+    title: "BUS101 Intro to Business Midterm",
+    course: "BUS101 - Intro to Business",
     lecturer: "Prof. James Miller",
     moderator: "Dr. Lisa Wong",
     date: "2026-02-08",
@@ -127,8 +133,8 @@ export const sampleAssessments: Assessment[] = [
   },
   {
     id: "a3",
-    title: "CS305 Algorithms Quiz 2",
-    course: "CS305 - Algorithms",
+    title: "IS305 Information Systems Quiz 2",
+    course: "IS305 - Information Systems",
     lecturer: "Dr. Maria Lopez",
     moderator: "Dr. Alan Tan",
     date: "2026-02-05",
@@ -140,8 +146,8 @@ export const sampleAssessments: Assessment[] = [
   },
   {
     id: "a4",
-    title: "CS410 Software Engineering Assignment",
-    course: "CS410 - Software Engineering",
+    title: "MGT410 Project Management Assignment",
+    course: "MGT410 - Project Management",
     lecturer: "Prof. David Kim",
     moderator: "Dr. Lisa Wong",
     date: "2026-01-28",
@@ -154,22 +160,22 @@ export const sampleAssessments: Assessment[] = [
 ];
 
 export const sampleActivityLogs: ActivityLog[] = [
-  { id: "log1", type: "upload", description: "CS201 Data Structures Final Exam uploaded", user: "Dr. Sarah Chen", timestamp: "2026-02-10 14:30" },
-  { id: "log2", type: "moderation_complete", description: "CS101 Intro to Programming Midterm moderation completed", user: "Dr. Lisa Wong", timestamp: "2026-02-09 10:15" },
-  { id: "log3", type: "flagged", description: "CS305 Algorithms Quiz 2 flagged for low complexity", user: "System", timestamp: "2026-02-06 09:00" },
-  { id: "log4", type: "approved", description: "CS101 Intro to Programming Midterm approved", user: "Dr. Lisa Wong", timestamp: "2026-02-09 10:20" },
-  { id: "log5", type: "rejected", description: "CS410 Software Engineering Assignment rejected", user: "Dr. Lisa Wong", timestamp: "2026-01-29 16:45" },
-  { id: "log6", type: "upload", description: "CS305 Algorithms Quiz 2 uploaded", user: "Dr. Maria Lopez", timestamp: "2026-02-05 08:30" },
-  { id: "log7", type: "upload", description: "CS410 Software Engineering Assignment uploaded", user: "Prof. David Kim", timestamp: "2026-01-28 11:00" },
+  { id: "log1", type: "upload", description: "BUS201 Strategic Management Final Exam uploaded", user: "Dr. Sarah Chen", timestamp: "2026-02-10 14:30" },
+  { id: "log2", type: "moderation_complete", description: "BUS101 Intro to Business Midterm moderation completed", user: "Dr. Lisa Wong", timestamp: "2026-02-09 10:15" },
+  { id: "log3", type: "flagged", description: "IS305 Information Systems Quiz 2 flagged for low complexity", user: "System", timestamp: "2026-02-06 09:00" },
+  { id: "log4", type: "approved", description: "BUS101 Intro to Business Midterm approved", user: "Dr. Lisa Wong", timestamp: "2026-02-09 10:20" },
+  { id: "log5", type: "rejected", description: "MGT410 Project Management Assignment rejected", user: "Dr. Lisa Wong", timestamp: "2026-01-29 16:45" },
+  { id: "log6", type: "upload", description: "IS305 Information Systems Quiz 2 uploaded", user: "Dr. Maria Lopez", timestamp: "2026-02-05 08:30" },
+  { id: "log7", type: "upload", description: "MGT410 Project Management Assignment uploaded", user: "Prof. David Kim", timestamp: "2026-01-28 11:00" },
 ];
 
 export const bloomColors: Record<BloomLevel, string> = {
-  Remember: "bg-bloom-remember",
-  Understand: "bg-bloom-understand",
-  Apply: "bg-bloom-apply",
-  Analyze: "bg-bloom-analyze",
-  Evaluate: "bg-bloom-evaluate",
-  Create: "bg-bloom-create",
+  Knowledge: "bg-bloom-remember",
+  Comprehension: "bg-bloom-understand",
+  Application: "bg-bloom-apply",
+  Analysis: "bg-bloom-analyze",
+  Synthesis: "bg-bloom-evaluate",
+  Evaluation: "bg-bloom-create",
 };
 
 export const difficultyColors: Record<Difficulty, string> = {
