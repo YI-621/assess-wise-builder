@@ -12,7 +12,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { extractTextFromPdf } from "@/lib/pdfExtractor";
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning/10 text-warning border-warning/20",
