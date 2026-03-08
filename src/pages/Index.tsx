@@ -1,4 +1,5 @@
-import { FileText, ClipboardCheck, CheckCircle, AlertTriangle, Users, BarChart3, Eye, Upload, Flag, Activity } from "lucide-react";
+import { FileText, ClipboardCheck, CheckCircle, AlertTriangle, Users, BarChart3, Eye, Upload, Flag, Activity, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { RecentAssessments } from "@/components/dashboard/RecentAssessments";
 import { BloomDistribution } from "@/components/dashboard/BloomDistribution";
