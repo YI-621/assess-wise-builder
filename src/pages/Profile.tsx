@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save, Loader2, User, Plus, X, ArrowRightLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useUserModules, useAddModule, useRemoveModule } from "@/hooks/useData";
 
 export default function Profile() {
   const { user, profile, roles, activeRole, switchRole } = useAuth();
@@ -19,11 +20,12 @@ export default function Profile() {
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [department, setDepartment] = useState(profile?.department ?? "");
   const [saving, setSaving] = useState(false);
-
-  const [modules, setModules] = useState<string[]>([]);
   const [newModule, setNewModule] = useState("");
 
-  // Switchable roles: only lecturer and moderator (not admin — admin is always admin view)
+  const { data: modules, isLoading: modulesLoading } = useUserModules();
+  const addModuleMutation = useAddModule();
+  const removeModuleMutation = useRemoveModule();
+
   const switchableRoles = roles.filter((r) => r === "lecturer" || r === "moderator");
   const canSwitch = switchableRoles.length > 1;
 
@@ -49,20 +51,17 @@ export default function Profile() {
 
   const addModule = () => {
     const trimmed = newModule.trim();
-    if (trimmed && !modules.includes(trimmed)) {
-      setModules([...modules, trimmed]);
-      setNewModule("");
+    if (trimmed) {
+      addModuleMutation.mutate(trimmed, {
+        onSuccess: () => setNewModule(""),
+        onError: (err: any) => toast({ title: "Failed to add module", description: err.message, variant: "destructive" }),
+      });
     }
-  };
-
-  const removeModule = (mod: string) => {
-    setModules(modules.filter((m) => m !== mod));
   };
 
   const handleRoleSwitch = (role: string) => {
     switchRole(role as any);
     toast({ title: `Switched to ${role} view` });
-    // Redirect to appropriate home page
     if (role === "moderator") navigate("/moderate");
     else if (role === "lecturer") navigate("/");
   };
@@ -128,7 +127,6 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      {/* Role Switching */}
       {canSwitch && (
         <Card>
           <CardHeader>
@@ -152,7 +150,6 @@ export default function Profile() {
         </Card>
       )}
 
-      {/* Modules Section */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">My Modules</CardTitle>
@@ -166,16 +163,21 @@ export default function Profile() {
               onChange={(e) => setNewModule(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addModule()}
             />
-            <Button variant="outline" size="icon" onClick={addModule}>
-              <Plus className="h-4 w-4" />
+            <Button variant="outline" size="icon" onClick={addModule} disabled={addModuleMutation.isPending}>
+              {addModuleMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             </Button>
           </div>
-          {modules.length > 0 ? (
+          {modulesLoading ? (
+            <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+          ) : modules && modules.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {modules.map((mod) => (
-                <Badge key={mod} variant="secondary" className="text-xs gap-1 pr-1">
-                  {mod}
-                  <button onClick={() => removeModule(mod)} className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5">
+                <Badge key={mod.id} variant="secondary" className="text-xs gap-1 pr-1">
+                  {mod.module_name}
+                  <button
+                    onClick={() => removeModuleMutation.mutate(mod.id)}
+                    className="ml-1 rounded-full hover:bg-muted-foreground/20 p-0.5"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>

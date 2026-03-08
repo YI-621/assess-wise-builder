@@ -1,34 +1,19 @@
-import { FileText, ClipboardCheck, CheckCircle, AlertTriangle, Users, BarChart3, Eye, Upload, Flag, Activity, ExternalLink } from "lucide-react";
+import { FileText, ClipboardCheck, CheckCircle, AlertTriangle, Users, BarChart3, Upload, Flag, Activity, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { RecentAssessments } from "@/components/dashboard/RecentAssessments";
 import { BloomDistribution } from "@/components/dashboard/BloomDistribution";
-import { sampleAssessments, sampleQuestions, sampleActivityLogs, type BloomLevel } from "@/lib/mockData";
 import { useAuth } from "@/hooks/useAuth";
+import { useAssessmentsWithQuestions, useActivityLogs, useLecturerCount } from "@/hooks/useData";
+import { sampleAssessments, sampleQuestions, sampleActivityLogs, type BloomLevel } from "@/lib/mockData";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import type { Assessment } from "@/lib/mockData";
-
-const bloomData: { name: BloomLevel; count: number; color: string }[] = [
-  { name: "Remember", count: sampleQuestions.filter((q) => q.bloomLevel === "Remember").length, color: "hsl(280, 67%, 50%)" },
-  { name: "Understand", count: sampleQuestions.filter((q) => q.bloomLevel === "Understand").length, color: "hsl(234, 89%, 56%)" },
-  { name: "Apply", count: sampleQuestions.filter((q) => q.bloomLevel === "Apply").length, color: "hsl(199, 89%, 48%)" },
-  { name: "Analyze", count: sampleQuestions.filter((q) => q.bloomLevel === "Analyze").length, color: "hsl(142, 71%, 45%)" },
-  { name: "Evaluate", count: sampleQuestions.filter((q) => q.bloomLevel === "Evaluate").length, color: "hsl(38, 92%, 50%)" },
-  { name: "Create", count: sampleQuestions.filter((q) => q.bloomLevel === "Create").length, color: "hsl(0, 72%, 51%)" },
-];
-
-const difficultyData = [
-  { name: "Very Easy", count: sampleQuestions.filter((q) => q.difficulty === "Very Easy").length, color: "hsl(160, 84%, 39%)" },
-  { name: "Easy", count: sampleQuestions.filter((q) => q.difficulty === "Easy").length, color: "hsl(142, 71%, 45%)" },
-  { name: "Medium", count: sampleQuestions.filter((q) => q.difficulty === "Medium").length, color: "hsl(38, 92%, 50%)" },
-  { name: "Hard", count: sampleQuestions.filter((q) => q.difficulty === "Hard").length, color: "hsl(0, 72%, 51%)" },
-  { name: "Very Hard", count: sampleQuestions.filter((q) => q.difficulty === "Very Hard").length, color: "hsl(0, 72%, 35%)" },
-];
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning/10 text-warning border-warning/20",
@@ -82,10 +67,7 @@ function AssessmentDetailDialog({ assessment, open, onClose }: { assessment: Ass
           )}
           <Button
             className="w-full mt-2 gap-2"
-            onClick={() => {
-              onClose();
-              navigate(`/moderate?id=${assessment.id}`);
-            }}
+            onClick={() => { onClose(); navigate(`/moderate?id=${assessment.id}`); }}
           >
             <ExternalLink className="h-4 w-4" /> View Full Assessment
           </Button>
@@ -95,15 +77,44 @@ function AssessmentDetailDialog({ assessment, open, onClose }: { assessment: Ass
   );
 }
 
+function useChartData(assessments: Assessment[]) {
+  const allQuestions = assessments.flatMap((a) => a.questions);
+
+  const bloomData: { name: BloomLevel; count: number; color: string }[] = [
+    { name: "Remember", count: allQuestions.filter((q) => q.bloomLevel === "Remember").length, color: "hsl(280, 67%, 50%)" },
+    { name: "Understand", count: allQuestions.filter((q) => q.bloomLevel === "Understand").length, color: "hsl(234, 89%, 56%)" },
+    { name: "Apply", count: allQuestions.filter((q) => q.bloomLevel === "Apply").length, color: "hsl(199, 89%, 48%)" },
+    { name: "Analyze", count: allQuestions.filter((q) => q.bloomLevel === "Analyze").length, color: "hsl(142, 71%, 45%)" },
+    { name: "Evaluate", count: allQuestions.filter((q) => q.bloomLevel === "Evaluate").length, color: "hsl(38, 92%, 50%)" },
+    { name: "Create", count: allQuestions.filter((q) => q.bloomLevel === "Create").length, color: "hsl(0, 72%, 51%)" },
+  ];
+
+  const difficultyData = [
+    { name: "Very Easy", count: allQuestions.filter((q) => q.difficulty === "Very Easy").length, color: "hsl(160, 84%, 39%)" },
+    { name: "Easy", count: allQuestions.filter((q) => q.difficulty === "Easy").length, color: "hsl(142, 71%, 45%)" },
+    { name: "Medium", count: allQuestions.filter((q) => q.difficulty === "Medium").length, color: "hsl(38, 92%, 50%)" },
+    { name: "Hard", count: allQuestions.filter((q) => q.difficulty === "Hard").length, color: "hsl(0, 72%, 51%)" },
+    { name: "Very Hard", count: allQuestions.filter((q) => q.difficulty === "Very Hard").length, color: "hsl(0, 72%, 35%)" },
+  ];
+
+  return { bloomData, difficultyData, allQuestions };
+}
+
 function LecturerDashboard() {
-  const pending = sampleAssessments.filter((a) => a.status === "Pending").length;
-  const done = sampleAssessments.filter((a) => a.status === "Approved" || a.status === "Reviewed").length;
-  const flagged = sampleQuestions.filter((q) => q.similarityScore > 50 || q.complexity < 30).length;
+  const { data: dbAssessments, isLoading } = useAssessmentsWithQuestions();
+  const assessments = dbAssessments && dbAssessments.length > 0 ? dbAssessments : sampleAssessments;
+  const { bloomData, difficultyData, allQuestions } = useChartData(assessments);
+
+  const pending = assessments.filter((a) => a.status === "Pending").length;
+  const done = assessments.filter((a) => a.status === "Approved" || a.status === "Reviewed").length;
+  const flagged = allQuestions.filter((q) => q.similarityScore > 50 || q.complexity < 30).length;
+
+  if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={FileText} title="Total Assessments" value={sampleAssessments.length} subtitle="Uploaded by you" variant="primary" />
+        <StatCard icon={FileText} title="Total Assessments" value={assessments.length} subtitle="Uploaded by you" variant="primary" />
         <StatCard icon={ClipboardCheck} title="Pending Review" value={pending} subtitle="Awaiting moderation" variant="warning" />
         <StatCard icon={CheckCircle} title="Done Review" value={done} subtitle="Moderation completed" variant="success" />
         <StatCard icon={AlertTriangle} title="Flagged Issues" value={flagged} subtitle="Across all assessments" variant="destructive" />
@@ -144,22 +155,34 @@ function LecturerDashboard() {
 
 function AdminDashboard() {
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+  const { data: dbAssessments, isLoading } = useAssessmentsWithQuestions();
+  const { data: dbActivityLogs } = useActivityLogs();
+  const { data: lecturerCount } = useLecturerCount();
 
-  const pending = sampleAssessments.filter((a) => a.status === "Pending").length;
-  const flaggedAssessments = sampleAssessments.filter((a) => a.flagged);
-  const avgScore = Math.round(sampleAssessments.reduce((sum, a) => sum + a.overallScore, 0) / sampleAssessments.length);
+  const assessments = dbAssessments && dbAssessments.length > 0 ? dbAssessments : sampleAssessments;
+  const activityLogs = dbActivityLogs && dbActivityLogs.length > 0
+    ? dbActivityLogs.map((l) => ({ id: l.id, type: l.type, description: l.description, user: l.user_name ?? "Unknown", timestamp: new Date(l.created_at).toLocaleString() }))
+    : sampleActivityLogs;
+
+  const { bloomData, difficultyData } = useChartData(assessments);
+
+  const pending = assessments.filter((a) => a.status === "Pending").length;
+  const flaggedAssessments = assessments.filter((a) => a.flagged);
+  const avgScore = assessments.length > 0
+    ? Math.round(assessments.reduce((sum, a) => sum + a.overallScore, 0) / assessments.length)
+    : 0;
+
+  if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   return (
     <>
-      {/* Top stats row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={FileText} title="Total Submitted" value={sampleAssessments.length} subtitle="For moderation" variant="primary" />
+        <StatCard icon={FileText} title="Total Submitted" value={assessments.length} subtitle="For moderation" variant="primary" />
         <StatCard icon={ClipboardCheck} title="Pending Review" value={pending} subtitle="Awaiting moderation" variant="warning" />
-        <StatCard icon={Users} title="Lecturers" value={4} subtitle="Under supervision" variant="success" />
+        <StatCard icon={Users} title="Lecturers" value={lecturerCount ?? 0} subtitle="Under supervision" variant="success" />
         <StatCard icon={BarChart3} title="Avg Score" value={`${avgScore}%`} subtitle="Submitted assessments" variant="primary" />
       </div>
 
-      {/* Recent Assessments (clickable) + Flagged Assessments */}
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <div className="rounded-xl border border-border bg-card animate-fade-in">
@@ -167,7 +190,7 @@ function AdminDashboard() {
               <h3 className="text-sm font-semibold text-card-foreground">Recent Assessments</h3>
             </div>
             <div className="divide-y divide-border">
-              {sampleAssessments.map((a) => (
+              {assessments.slice(0, 10).map((a) => (
                 <div
                   key={a.id}
                   className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/50 transition-colors cursor-pointer"
@@ -184,11 +207,11 @@ function AdminDashboard() {
                   </div>
                 </div>
               ))}
+              {assessments.length === 0 && <p className="text-sm text-muted-foreground px-5 py-6 text-center">No assessments yet</p>}
             </div>
           </div>
         </div>
 
-        {/* Flagged Assessments */}
         <div className="lg:col-span-2">
           <div className="rounded-xl border border-border bg-card animate-fade-in">
             <div className="flex items-center gap-2 border-b border-border px-5 py-4">
@@ -197,11 +220,7 @@ function AdminDashboard() {
             </div>
             <div className="divide-y divide-border">
               {flaggedAssessments.length > 0 ? flaggedAssessments.map((a) => (
-                <div
-                  key={a.id}
-                  className="px-5 py-3.5 hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => setSelectedAssessment(a)}
-                >
+                <div key={a.id} className="px-5 py-3.5 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => setSelectedAssessment(a)}>
                   <p className="text-sm font-medium text-card-foreground">{a.title}</p>
                   <p className="text-xs text-destructive mt-1">{a.flagReason}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">{a.lecturer} · {a.date}</p>
@@ -214,7 +233,6 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Charts row */}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-5 animate-fade-in">
           <h3 className="text-sm font-semibold text-card-foreground mb-4">Bloom's Taxonomy Distribution</h3>
@@ -240,14 +258,13 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent Activity */}
       <div className="rounded-xl border border-border bg-card animate-fade-in">
         <div className="flex items-center gap-2 border-b border-border px-5 py-4">
           <Activity className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold text-card-foreground">Recent Activity</h3>
         </div>
         <div className="divide-y divide-border">
-          {sampleActivityLogs.map((log) => {
+          {activityLogs.map((log) => {
             const Icon = activityIcons[log.type] || Activity;
             return (
               <div key={log.id} className="flex items-start gap-3 px-5 py-3">
@@ -259,6 +276,7 @@ function AdminDashboard() {
               </div>
             );
           })}
+          {activityLogs.length === 0 && <p className="text-sm text-muted-foreground px-5 py-6 text-center">No activity yet</p>}
         </div>
       </div>
 

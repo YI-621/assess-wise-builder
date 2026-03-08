@@ -14,6 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          assessment_id: string | null
+          created_at: string
+          description: string
+          id: string
+          type: string
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          type: string
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          type?: string
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          course: string
+          created_at: string
+          date: string
+          file_url: string | null
+          flag_reason: string | null
+          flagged: boolean | null
+          id: string
+          lecturer_id: string
+          moderator_id: string | null
+          overall_score: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course: string
+          created_at?: string
+          date?: string
+          file_url?: string | null
+          flag_reason?: string | null
+          flagged?: boolean | null
+          id?: string
+          lecturer_id: string
+          moderator_id?: string | null
+          overall_score?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course?: string
+          created_at?: string
+          date?: string
+          file_url?: string | null
+          flag_reason?: string | null
+          flagged?: boolean | null
+          id?: string
+          lecturer_id?: string
+          moderator_id?: string | null
+          overall_score?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      moderation_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          question_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string
+          created_at?: string
+          id?: string
+          question_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          question_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_comments_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,6 +165,59 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          assessment_id: string
+          bloom_level: string
+          complexity: number
+          created_at: string
+          difficulty: string
+          id: string
+          keywords: string[] | null
+          marks: number
+          question_order: number
+          similar_to: string | null
+          similarity_score: number
+          text: string
+        }
+        Insert: {
+          assessment_id: string
+          bloom_level?: string
+          complexity?: number
+          created_at?: string
+          difficulty?: string
+          id?: string
+          keywords?: string[] | null
+          marks?: number
+          question_order?: number
+          similar_to?: string | null
+          similarity_score?: number
+          text: string
+        }
+        Update: {
+          assessment_id?: string
+          bloom_level?: string
+          complexity?: number
+          created_at?: string
+          difficulty?: string
+          id?: string
+          keywords?: string[] | null
+          marks?: number
+          question_order?: number
+          similar_to?: string | null
+          similarity_score?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_settings: {
         Row: {
           id: string
@@ -65,6 +239,27 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      user_modules: {
+        Row: {
+          created_at: string
+          id: string
+          module_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_name?: string
+          user_id?: string
         }
         Relationships: []
       }

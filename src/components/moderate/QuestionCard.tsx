@@ -7,6 +7,7 @@ interface QuestionCardProps {
   index: number;
   comment?: string;
   onCommentChange?: (value: string) => void;
+  onCommentBlur?: () => void;
   readOnly?: boolean;
 }
 
@@ -30,12 +31,7 @@ function ComplexityBars({ value }: { value: number }) {
           const isActive = value >= level.min;
           return (
             <div key={level.label} className="flex-1 flex flex-col items-center gap-0.5">
-              <div
-                className={cn(
-                  "h-2 w-full rounded-sm transition-all",
-                  isActive ? level.color : "bg-muted"
-                )}
-              />
+              <div className={cn("h-2 w-full rounded-sm transition-all", isActive ? level.color : "bg-muted")} />
               <span className="text-[8px] text-muted-foreground leading-none">{level.label}</span>
             </div>
           );
@@ -60,7 +56,7 @@ function ScoreBar({ label, value, max = 100, variant }: { label: string; value: 
   );
 }
 
-export function QuestionCard({ question, index, comment, onCommentChange, readOnly }: QuestionCardProps) {
+export function QuestionCard({ question, index, comment, onCommentChange, onCommentBlur, readOnly }: QuestionCardProps) {
   const similarityVariant = question.similarityScore > 60 ? "bad" : question.similarityScore > 30 ? "warn" : "good";
 
   return (
@@ -117,7 +113,6 @@ export function QuestionCard({ question, index, comment, onCommentChange, readOn
         </div>
       )}
 
-      {/* Comment Section */}
       {onCommentChange && (
         <div className="mt-4 border-t border-border pt-3">
           <div className="flex items-center gap-2 mb-2">
@@ -130,6 +125,7 @@ export function QuestionCard({ question, index, comment, onCommentChange, readOn
             <textarea
               value={comment}
               onChange={(e) => onCommentChange(e.target.value)}
+              onBlur={onCommentBlur}
               placeholder="Add a comment for this question..."
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none min-h-[60px]"
             />
