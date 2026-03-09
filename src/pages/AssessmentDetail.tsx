@@ -31,9 +31,6 @@ const AssessmentDetail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const id = searchParams.get("id");
-  const { toast } = useToast();
-  const analyzeAssessment = useAnalyzeAssessment();
-
   const { data: dbAssessment, isLoading } = useAssessmentWithQuestions(id);
   const mockAssessment = sampleAssessments.find((a) => a.id === id) || sampleAssessments[0];
   const assessment = dbAssessment ?? mockAssessment;
