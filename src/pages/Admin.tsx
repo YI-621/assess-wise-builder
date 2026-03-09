@@ -192,12 +192,13 @@ export default function Admin() {
                           <div className="flex gap-2">
                             {(["admin", "moderator", "lecturer"] as const).map((role) => {
                               const active = u.roles.includes(role);
+                              const isAdminRole = role === "admin";
                               return (
                                 <Badge
                                   key={role}
                                   variant={active ? roleBadgeColor(role) as any : "outline"}
-                                  className={`cursor-pointer select-none transition-opacity ${!active ? "opacity-40" : ""}`}
-                                  onClick={() => toggleRole(u.user_id, role)}
+                                  className={`select-none transition-opacity ${!active ? "opacity-40" : ""} ${isAdminRole ? "cursor-not-allowed" : "cursor-pointer"}`}
+                                  onClick={isAdminRole ? undefined : () => toggleRole(u.user_id, role)}
                                 >
                                   {role}
                                 </Badge>
