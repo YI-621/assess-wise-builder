@@ -37,8 +37,6 @@ const Moderate = () => {
   const saveComment = useSaveComment();
   const updateStatus = useUpdateAssessmentStatus();
   const logActivity = useLogActivity();
-  const analyzeAssessment = useAnalyzeAssessment();
-
   const [comments, setComments] = useState<Record<string, string>>({});
 
   useEffect(() => {
