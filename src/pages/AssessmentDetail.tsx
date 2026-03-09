@@ -4,12 +4,10 @@ import { AssessmentSummary } from "@/components/moderate/AssessmentSummary";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import { useAssessmentWithQuestions, useModerationComments } from "@/hooks/useData";
-import { sampleAssessments } from "@/lib/mockData";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
 
 const statusStyles: Record<string, string> = {
   Pending: "bg-warning/10 text-warning border-warning/20",
@@ -31,9 +29,8 @@ const AssessmentDetail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const id = searchParams.get("id");
-  const { data: dbAssessment, isLoading } = useAssessmentWithQuestions(id);
-  const mockAssessment = sampleAssessments.find((a) => a.id === id) || sampleAssessments[0];
-  const assessment = dbAssessment ?? mockAssessment;
+
+  const { data: assessment, isLoading } = useAssessmentWithQuestions(id);
 
   const questionIds = assessment?.questions.map((q) => q.id) ?? [];
   const { data: dbComments } = useModerationComments(questionIds);
