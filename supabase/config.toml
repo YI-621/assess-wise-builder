@@ -1,7 +1,5 @@
 project_id = "hliwmgjsaseyrkknkoqq"
 
-[functions.moderate-assessment]
-verify_jwt = false
 
 [functions.audit-logger]
 verify_jwt = false

@@ -385,29 +385,3 @@ export function useLecturerCount() {
   });
 }
 
-export function useAnalyzeAssessment() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (assessmentId: string) => {
-      const { data, error } = await supabase.functions.invoke("moderate-assessment", {
-        body: { assessment_id: assessmentId },
-      });
-
-      if (error) throw error;
-
-      // Handle edge function error responses
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["assessments"] });
-      queryClient.invalidateQueries({ queryKey: ["assessments-full"] });
-      queryClient.invalidateQueries({ queryKey: ["assessment"] });
-      queryClient.invalidateQueries({ queryKey: ["questions"] });
-    },
-  });
-}
