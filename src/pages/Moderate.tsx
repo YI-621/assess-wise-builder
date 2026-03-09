@@ -39,13 +39,14 @@ const Moderate = () => {
   const logActivity = useLogActivity();
   const [comments, setComments] = useState<Record<string, string>>({});
 
+  // Only load the current user's own comments (moderator shouldn't see admin comments)
   useEffect(() => {
-    if (dbComments) {
+    if (dbComments && user) {
       const map: Record<string, string> = {};
-      dbComments.forEach((c) => { map[c.question_id] = c.comment; });
+      dbComments.filter((c) => c.user_id === user.id).forEach((c) => { map[c.question_id] = c.comment; });
       setComments((prev) => ({ ...map, ...prev }));
     }
-  }, [dbComments]);
+  }, [dbComments, user]);
 
   const handleCommentChange = (questionId: string, value: string) => {
     setComments((prev) => ({ ...prev, [questionId]: value }));
