@@ -1,6 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { QuestionCard } from "@/components/moderate/QuestionCard";
 import { AssessmentSummary } from "@/components/moderate/AssessmentSummary";
+import { PendingModerationScreen } from "@/components/assessment/PendingModerationScreen";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import { useAssessmentWithQuestions, useModerationComments, useSaveComment } from "@/hooks/useData";
