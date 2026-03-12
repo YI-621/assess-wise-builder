@@ -1,6 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { QuestionCard } from "@/components/moderate/QuestionCard";
 import { AssessmentSummary } from "@/components/moderate/AssessmentSummary";
+import { PendingModerationScreen } from "@/components/assessment/PendingModerationScreen";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import { useAssessmentWithQuestions, useModerationComments, useSaveComment } from "@/hooks/useData";
@@ -192,10 +193,7 @@ const AssessmentDetail = () => {
               </div>
             ))
           ) : (
-            <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
-              <p className="text-sm">No moderation results available yet.</p>
-              <p className="text-xs mt-1">Results will appear here once the assessment has been moderated.</p>
-            </div>
+            <PendingModerationScreen />
           )}
         </div>
         <div className="space-y-4">
