@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import AssessmentDetail from "./pages/AssessmentDetail";
 import AdminAssessments from "./pages/AdminAssessments";
+import Palette from "./pages/Palette";
 
 const queryClient = new QueryClient();
 
