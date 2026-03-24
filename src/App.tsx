@@ -31,6 +31,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/welcome" element={<Landing />} />
+            <Route path="/palette" element={<Palette />} />
             <Route path="/auth" element={<Auth />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<RoleRoute allowedRoles={["lecturer", "admin"]} fallback="/moderate"><Index /></RoleRoute>} />
